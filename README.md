@@ -1,1 +1,2 @@
 #SimpleJavaTest
+记录一些日常使用到的简单的java方法
