@@ -11,6 +11,7 @@ import java.util.List;
 import org.testng.collections.Lists;
 
 /**
+ * 需要apache-pio在3.17之上，否则会因为excel版本出问题
  * Created by lihongli on 2019/10/25.
  */
 public class EasyExcelUtils {
