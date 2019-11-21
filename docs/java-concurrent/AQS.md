@@ -893,6 +893,11 @@ public final boolean releaseShared(int arg) {
 
 ## AQS的其他实现
 
+* ReentrantReadWriteLock，ReadLock和WriteLock维护同一个AQS
+* CountDownLatch
+* LimitLatch
+* ThreadPoolExecor中的Worker--这个之后详细看看
+
 
 
 ## 还没有参透的问题
