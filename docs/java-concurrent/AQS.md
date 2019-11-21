@@ -23,7 +23,7 @@ java.util.concurrent包里面提供了很多种锁一样的类，ReentrantLock�
 
 ## 使用示例和现成的实现
 
-### 使用示例
+### ReentrantLock使用示例
 
 ```java
 public class ReentrantLockTest {
@@ -300,9 +300,196 @@ abstract static class Sync extends AbstractQueuedSynchronizer {
 
 > 但是说了这么多，ReetrantLock只是对加锁和释放锁做了实现，那么多个线程同时请求获取锁的时候，到底是怎么被组织的呢？
 
+### Semaphore使用示例
+
+```java
+public class SemaphoreTest {
+    private static final Semaphore semaphore = new Semaphore(3);
+    public static void main(String[] args) {
+        BlockingQueue<Runnable> blockingQueue = new LinkedBlockingQueue<>(20);
+        ExecutorService executorService = new ThreadPoolExecutor(10, 100,
+            0L, TimeUnit.MILLISECONDS, blockingQueue);
+        //创建10个线程，丢入线程池执行
+        for (int i = 0; i < 10; i++) {
+            AcquireThread acquireThread = new AcquireThread();
+            acquireThread.setName("" + i);
+            executorService.submit(acquireThread);
+        }
+    }
+    static class AcquireThread extends Thread {
+        @Override
+        public void run() {
+            System.out.println("线程" + this.getName() + "开始执行。。。");
+            try {
+                semaphore.acquire();
+                System.out.println("线程" + this.getName() + "获取到资源开始运行！！！！！");
+                Thread.sleep(1000);
+            } catch (Exception e) {
+                throw new RuntimeException("线程" + this.getName() + "运行失败");
+            } finally {
+                semaphore.release();
+                System.out.println("线程" + this.getName() + "已释放资源ssssss");
+            }
+        }
+    }
+}
+```
+
+运行结果:
+
+```java
+线程0开始执行。。。
+线程1开始执行。。。
+线程1获取到资源开始运行！！！！！
+线程0获取到资源开始运行！！！！！
+线程2开始执行。。。
+线程2获取到资源开始运行！！！！！
+线程3开始执行。。。
+线程4开始执行。。。
+线程5开始执行。。。
+线程6开始执行。。。
+线程7开始执行。。。
+线程8开始执行。。。
+线程9开始执行。。。
+线程1已释放资源ssssss
+线程2已释放资源ssssss
+线程4获取到资源开始运行！！！！！
+线程0已释放资源ssssss
+线程5获取到资源开始运行！！！！！
+线程3获取到资源开始运行！！！！！
+线程5已释放资源ssssss
+线程6获取到资源开始运行！！！！！
+线程4已释放资源ssssss
+线程3已释放资源ssssss
+线程8获取到资源开始运行！！！！！
+线程7获取到资源开始运行！！！！！
+线程8已释放资源ssssss
+线程9获取到资源开始运行！！！！！
+线程6已释放资源ssssss
+线程7已释放资源ssssss
+线程9已释放资源ssssss
+```
+
+可以看出来，同一时刻会有三个线程同时竞争到资源
+
+#### Semaphore源码分析
+
+> 首先,Semaphore中也是维护一个实现了AQS的Sync，也分公平和非公平两种。所以直接看两个锁的tryAcquireShared和tryReleaseShared
+
+##### Semaphore加锁
+
+```java
+abstract static class Sync extends AbstractQueuedSynchronizer {
+  private static final long serialVersionUID = 1192457210091910933L;
+  Sync(int permits) {
+    setState(permits);
+  }
+  final int getPermits() {
+    return getState();
+  }
+  final int nonfairTryAcquireShared(int acquires) {
+    for (;;) {
+      //获取当前state,减去当前的申请量(acquires)，
+      int available = getState();
+      int remaining = available - acquires;
+      //如果资源减完了，返回
+      //如果还有资源，cas占用资源，返回
+      if (remaining < 0 ||
+          compareAndSetState(available, remaining))
+        return remaining;
+    }
+  }
+}
+
+
+//非公平锁，直接使用sync的获取锁方法
+static final class NonfairSync extends Sync {
+  private static final long serialVersionUID = -2694183684443567898L;
+
+  NonfairSync(int permits) {
+    super(permits);
+  }
+
+  protected int tryAcquireShared(int acquires) {
+    return nonfairTryAcquireShared(acquires);
+  }
+}
+
+//公平锁
+static final class FairSync extends Sync {
+  private static final long serialVersionUID = 2014338818796000944L;
+
+  FairSync(int permits) {
+    super(permits);
+  }
+
+  protected int tryAcquireShared(int acquires) {
+    for (;;) {
+      //判断是否有当前队列里是不是有比本节点更早的节点，如果有直接申请失败
+      if (hasQueuedPredecessors())
+        return -1;
+      int available = getState();
+      int remaining = available - acquires;
+      if (remaining < 0 ||
+          compareAndSetState(available, remaining))
+        return remaining;
+    }
+  }
+}
+```
+
+> 和reentrantLock的区别就是state代表资源的数量，允许多个线程来获取，只要还有剩余就能获取成功。这也是共享锁和排它锁的区别。
+
+##### Semaphore的释放
+
+```java
+abstract static class Sync extends AbstractQueuedSynchronizer {
+  private static final long serialVersionUID = 1192457210091910933L;
+
+  //释放锁，
+  protected final boolean tryReleaseShared(int releases) {
+    for (;;) {
+      //获取当前的state,把需要释放的资源数加回去，通过cas设置回去。
+      int current = getState();
+      int next = current + releases;
+      if (next < current) // overflow
+        throw new Error("Maximum permit count exceeded");
+      if (compareAndSetState(current, next))
+        return true;
+    }
+  }
+}
+```
+
+
+
+实际使用过程中，调用的方法是下面两个,调用的就是sync的方法，也就是AQS里面的实现
+
+```java
+
+public void acquire(int permits) throws InterruptedException {
+  if (permits < 0) throw new IllegalArgumentException();
+  sync.acquireSharedInterruptibly(permits);
+}
+
+
+ public void release(int permits) {
+   if (permits < 0) throw new IllegalArgumentException();
+   sync.releaseShared(permits);
+ }
+```
+
+
+
+
+
+
+
+
+
 ## AQS源码分析
 
-### lock
+### 独占锁加锁
 
 讲AQS,我们先捋一遍获取锁和释放锁的流程.
 
@@ -484,7 +671,7 @@ private final boolean parkAndCheckInterrupt() {
 
 到这里，如果线程有别唤起了，理论上是因为前置节点是head,而且他已经在执行释放锁了，所以继续`acquireQueued`的自旋，尝试锁。大不了不行就继续挂起呗！
 
-### unlock
+### 独占锁释放
 
 在ReentrantLock的源码分析的时候，发现unlock的时候调用的是sync的release(1)方法。这个release方法又是AQS的模板实现。
 
@@ -533,9 +720,185 @@ private void unparkSuccessor(Node node) {
 
 唤醒后继节点之后，后继节点就会继续执行他的`acquireQueued`自旋操作，竞争锁。
 
+### 共享锁加锁
+
+```java
+ public final void acquireShared(int arg) {
+   //调用具体实现类的申请锁操作
+   if (tryAcquireShared(arg) < 0)
+     //申请资源失败，入队列申请锁
+     doAcquireShared(arg);
+ }
+
+//入队列申请所
+private void doAcquireShared(int arg) {
+  //和独占锁一样，加入到同步队列中，模式是共享锁
+  final Node node = addWaiter(Node.SHARED);
+  boolean failed = true;
+  try {
+    boolean interrupted = false;
+    for (;;) {
+      //判断前置节点是不是head,如果是，先尝试获取锁
+      final Node p = node.predecessor();
+      if (p == head) {
+        int r = tryAcquireShared(arg);
+        if (r >= 0) {
+          //获取锁成功之后，将当前节点放到head上，尝试唤醒后续节点
+          setHeadAndPropagate(node, r);
+          p.next = null; // help GC
+          if (interrupted)
+            selfInterrupt();
+          failed = false;
+          return;
+        }
+      }
+      //和排它锁一样，如果获取锁失败，判断是否需要挂起，然后挂起
+      if (shouldParkAfterFailedAcquire(p, node) &&
+          parkAndCheckInterrupt())
+        interrupted = true;
+    }
+  } finally {
+    if (failed)
+      cancelAcquire(node);
+  }
+}
+
+//当前节点获取锁成功的情况下，将他设置成head节点
+private void setHeadAndPropagate(Node node, int propagate) {
+//将当前Node设置成head
+  Node h = head; 
+  setHead(node);
+
+  //如果资源还有剩余(propagate>0),尝试唤醒下个节点---共享锁
+  if (propagate > 0 || h == null || h.waitStatus < 0 ||
+      (h = head) == null || h.waitStatus < 0) {
+    Node s = node.next;
+    if (s == null || s.isShared())
+      doReleaseShared();
+  }
+}
+
+//唤醒下个节点
+private void doReleaseShared() {
+  for (;;) {
+    Node h = head;
+    if (h != null && h != tail) {
+      int ws = h.waitStatus;
+      //如果当前节点状态是SIGNAL,unpark唤醒下个节点
+      if (ws == Node.SIGNAL) {
+        if (!compareAndSetWaitStatus(h, Node.SIGNAL, 0))
+          continue;            // loop to recheck cases
+        unparkSuccessor(h);
+      }
+      //如果当前节点状态是0，将他设置成PROPAGATE
+      else if (ws == 0 &&
+               !compareAndSetWaitStatus(h, 0, Node.PROPAGATE))
+        continue;                // loop on failed CAS
+    }
+    if (h == head)                   // loop if head changed
+      break;
+  }
+}
+```
+
+>  这个最后的设置状态PROPAGATE，还是有点搞不懂!!!
+
+#### 共享锁释放
+
+```java
+public final boolean releaseShared(int arg) {
+  //使用子类实现的方法去还资源的数量
+  if (tryReleaseShared(arg)) {
+    //唤醒像一个节点。
+    doReleaseShared();
+    return true;
+  }
+  return false;
+}
+```
+
+
+
 ### Condition
 
+> condition实现的功能就像是Object中的wait和notify的功能。
+
+```java
+ public class ConditionObject implements Condition, java.io.Serializable {
+   //只有当前线程已经获取到锁的情况下才能调用，因为里面有个release操作，如果不是锁的持有者会报错
+   public final void await() throws InterruptedException {
+     if (Thread.interrupted())
+       throw new InterruptedException();
+     //将当前线程加入condition队列中
+     Node node = addConditionWaiter();
+     //释放当前线程的锁，因为可能是可重入锁，所以需要记录下被释放的state值
+     int savedState = fullyRelease(node);
+     int interruptMode = 0;
+     //一直循环或者挂起，知道本线程的node被从condition队列放入同步队列中
+     //这个从condition队列放入同步队列的操作是在别的线程执行sign的时候会操作，
+     while (!isOnSyncQueue(node)) {
+       //如果不在同步队列中，挂起线程
+       LockSupport.park(this);
+       if ((interruptMode = checkInterruptWhileWaiting(node)) != 0)
+         break;
+     }
+     //到当前位置说明已经进入了同步队列，尝试获同步的锁
+     if (acquireQueued(node, savedState) && interruptMode != THROW_IE)
+       interruptMode = REINTERRUPT;
+     if (node.nextWaiter != null) // clean up if cancelled
+       unlinkCancelledWaiters();
+     if (interruptMode != 0)
+       reportInterruptAfterWait(interruptMode);
+   }
+   
+   //通知--只作用于一个节点
+    public final void signal() {
+      //判断当前线程是否持有锁
+      if (!isHeldExclusively())
+        throw new IllegalMonitorStateException();
+      //获取condition队列中的第一个等待节点，通知该节点
+      Node first = firstWaiter;
+      if (first != null)
+        doSignal(first);
+    }
+   
+   //执行sign
+   private void doSignal(Node first) {
+     do {
+       //如果当前节点后面没有数据，把lastWaiter置空
+       if ( (firstWaiter = first.nextWaiter) == null)
+         lastWaiter = null;
+       first.nextWaiter = null;
+       //将first节点从condition队列放入同步队列
+     } while (!transferForSignal(first) &&
+              (first = firstWaiter) != null);
+   }
+   
+   //将当前节点放入同步队列
+   final boolean transferForSignal(Node node) {
+        Node p = enq(node);
+        int ws = p.waitStatus;
+     		//如果这个节点的前置节点为cancel或者设置前置节点状态sign失败，unpark这个节点的线程
+        if (ws > 0 || !compareAndSetWaitStatus(p, ws, Node.SIGNAL))
+            LockSupport.unpark(node.thread);
+        return true;
+    }
+   
+ }
+```
+
+
+
+
+
 ## AQS的其他实现
+
+
+
+## 还没有参透的问题
+
+* AQS中的doReleaseShared方法，如果是0状态的情况下，将Node设置成PROPAGATE状态
+* unparkSuccessor的时候，如果后继节点是CANCEL状态的时候，为啥是从tail往前找有效节点，而不是从前往后找。
 
 ## 参考资料
 
