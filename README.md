@@ -8,3 +8,16 @@
 
 ### 20191119
 * 开始读一下并发包，从AQS开始
+
+
+
+# 工作中用到的插件
+
+## vundle 插件管理器
+
+[安装方式](https://github.com/VundleVim/Vundle.vim)
+
+## vim 插件
+
+docs/config-files/vimrc，将他放到~目录下，修改文件名为.vimrc
+
