@@ -21,3 +21,13 @@
 
 docs/config-files/vimrc，将他放到~目录下，修改文件名为.vimrc
 
+
+
+
+
+# 面试内容
+
+[基础知识](https://snailclimb.gitee.io/javaguide/#/?id=java)
+
+
+
