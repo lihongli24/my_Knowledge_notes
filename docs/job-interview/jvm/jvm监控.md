@@ -178,3 +178,63 @@ Java stack information for the threads listed above:
 
 ```
 
+### cpu使用率上升
+可能的原因：
+* 新生代设置太小，频繁 minor gc,会导致cpu使用率上升
+* while的无限循环
+* 线程间上下文切换
+如果遇到线上cpu彪升的情况，排查方式
+#### 定位进程
+```java
+$top
+   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+  1893 admin     20   0 7127m 2.6g  38m S 181.7 32.6  10:20.26 java
+```
+
+进程ID为1893的Java进程的CPU占用率达到了181%，基本可以定位到是我们的Java应用导致整个服务器的CPU占用率飙升。
+
+#### 定位线程
+
+我们知道，Java是单进程多线程的，那么，我们接下来看看PID=1893的这个Java进程中的各个线程的CPU使用情况，同样是用top命令：
+
+```
+$top -Hp 1893
+   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+  4519 admin     20   0 7127m 2.6g  38m R 18.6 32.6   0:40.11 java
+```
+
+通过top -Hp 1893命令，我们可以发现，当前1893这个进程中，ID为4519的线程占用CPU最高。
+
+#### 定位代码
+
+首先，我们需要把4519这个线程转成16进制：
+
+```
+$printf %x 4519
+11a7
+```
+
+接下来，通过jstack命令，查看栈信息：
+
+```java
+$sudo -u admin  jstack 1893 |grep -A 200 11a7
+"HSFBizProcessor-DEFAULT-8-thread-5" #500 daemon prio=10 os_prio=0 tid=0x00007f632314a800 nid=0x11a2 runnable [0x000000005442a000]
+   java.lang.Thread.State: RUNNABLE
+  at sun.misc.URLClassPath$Loader.findResource(URLClassPath.java:684)
+  at sun.misc.URLClassPath.findResource(URLClassPath.java:188)
+  at java.net.URLClassLoader$2.run(URLClassLoader.java:569)
+  at java.net.URLClassLoader$2.run(URLClassLoader.java:567)
+  at java.security.AccessController.doPrivileged(Native Method)
+  at java.net.URLClassLoader.findResource(URLClassLoader.java:566)
+  at java.lang.ClassLoader.getResource(ClassLoader.java:1093)
+  at java.net.URLClassLoader.getResourceAsStream(URLClassLoader.java:232)
+  at org.hibernate.validator.internal.xml.ValidationXmlParser.getInputStreamForPath(ValidationXmlParser.java:248)
+  at org.hibernate.validator.internal.xml.ValidationXmlParser.getValidationConfig(ValidationXmlParser.java:191)
+  at org.hibernate.validator.internal.xml.ValidationXmlParser.parseValidationXml(ValidationXmlParser.java:65)
+  at org.hibernate.validator.internal.engine.ConfigurationImpl.parseValidationXml(ConfigurationImpl.java:287)
+  at org.hibernate.validator.internal.engine.ConfigurationImpl.buildValidatorFactory(ConfigurationImpl.java:174)
+  at javax.validation.Validation.buildDefaultValidatorFactory(Validation.java:111)
+  at com.test.common.util.BeanValidator.validate(BeanValidator.java:30)
+```
+
+通过以上代码，我们可以清楚的看到，BeanValidator.java的第30行是有可能存在问题的。
