@@ -1,0 +1,300 @@
+1.如何防止网络抖动产生的重复建单？
+
+答：原因：你这种情况应该是客户端请求发过去了，服务器写到数据库了，返回完成状态的时候网断了，这时客户端没有收到反馈以为订单没有生成，再点击下单，这时网络好了，结果生成了两个。
+
+解决办法：（1）.待支付订单如果正在支付，就把这边订单锁定，变更为一个中间状态，这样就不会重复去支付这笔订单了(前端将提交按钮第一次点击提交时变成disable状态，直到后台返回状态后提交按钮恢复状态)
+
+                 （2）.可以修改后台代码使用线程池来避免重复提交，用sychronized就会是有重复的数据产生，如果加上则不会产生重复数据，达到预期效果。前台重复提交第二次时，然后通过查询后台返回一个状态，前台提示“不能重复提交”
+
+                  （3）.通过查询数据库这条订单的关键字段信息，看是否有重复订单，若有则前台重复提交时返回前台“不可重复提交”
+
+
+
+2.如何度过服务器启动后的连接风暴？
+
+3.jvm GC原理？
+
+参考：http://blog.csdn.net/lzxadsl/article/details/50159939
+
+4.类加载机制？
+
+参考：http://blog.csdn.net/fgets/article/details/52934178
+
+5.JVM优化？
+
+参考：http://blog.csdn.net/kefengwang/article/details/54378235
+
+6.说说对KAFAKA的理解？
+
+现代的互联网分布式系统，只要稍微大一些，就一定逃不开3类中间件：远程调用（RPC）框架、消息队列、数据库访问中间件。Kafka 是消息队列中间件的代表产品，用 Scala 语言实现.
+
+参考：https://www.cnblogs.com/yangxiaoyi/p/7359236.html
+
+7.说一下多线程的实现，同步，异步，优化？
+
+     答：  同步就是一件事，一件事情一件事的做。
+            异步就是，做一件事情，不引响做其他事情。
+
+
+多线程有两种实现方法，分别是继承Thread类与实现Runnable接口;
+
+同步的实现方面有两种，分别是synchronized,wait与notify
+
+多线程优化参考：http://blog.csdn.net/luofenghan/article/details/78596950
+8.说一下线程池？线程池里面的线程的状态有哪些？
+
+线程池作用：简单说，频繁地创建和关闭线程是非常耗CPU资源的，线程池可以减少开销
+
+理解线程池参考：https://www.cnblogs.com/aspirant/p/6920418.html
+
+线程池状态：http://blog.csdn.net/l_kanglin/article/details/57411851
+
+9.数据结构有哪些？
+
+答：http://blog.csdn.net/gzl0524/article/details/78929154
+
+10.hashmap和hashtable的区别？hashmap的数据结构？hash的具体实现？
+
+答：http://blog.csdn.net/fujiakai/article/details/51585767
+
+11.设计模式有了解哪些？谈一下单例模式，工厂模式，代理模式
+
+答：顺便说一下spring的aop是基于代理模式的，可以实现日志记录功能等
+
+12.集合的分类和各自原理？
+
+答：http://blog.csdn.net/qq_35124535/article/details/66971650
+
+13.分布式和集群区别？
+
+答：集群是个物理形态，分布式是个工作方式
+
+参考：http://huangyongxing310.iteye.com/blog/2317865
+
+14.数据库的锁
+
+答：
+
+      锁机制有两个层面。
+
+       一种是代码层次上的，如java中的同步锁，典型的就是同步关键字synchronized，这里我不在做过多的讲解，
+
+       感兴趣的可以参考:http://www.cnblogs.com/xiohao/p/4151408.html
+
+       另外一种是数据库层次上的，比较典型的就是悲观锁和乐观锁。就是悲观锁（传统的物理锁）和乐观锁。
+
+15.java中事务介绍
+
+答：http://blog.csdn.net/sinat_33536912/article/details/51200630
+
+16.jvm内存管理机制？
+
+答：https://www.cnblogs.com/newyunhe/articles/5001056.html
+
+17.Concurrent包的熟悉
+
+18.数据库的各种锁的机制
+
+答：http://blog.csdn.net/lexang1/article/details/52248686
+
+19.索引的类型和各自实现
+
+答：https://www.cnblogs.com/barrywxx/p/4351901.html
+
+20.高并发理解和解决办法
+
+答：http://blog.csdn.net/systemzyf/article/details/70258041
+
+21.数据库的优化？
+
+答：最好不要设置null值，避免sql语句中进行计算，避免In,导致全表扫描
+
+22.分布式下线程同步怎样处理问题？
+
+答：http://www.fx361.com/page/2017/0309/1098261.shtml
+
+23.如何处理并发和同步？
+
+答：http://betakoli.iteye.com/blog/2257095
+
+24.一个查询用户信息的url输入在浏览器地址栏中后按下回车键，经历了什么？
+
+答：https://www.cnblogs.com/midiyu/p/7905554.html
+
+25.OOM异常的发生原因
+
+答：http://www.jb51.net/article/110743.htm
+
+26.介绍spring任意一个模块的实现（如：ioc如何实现）
+
+答：http://blog.csdn.net/william_hangshao/article/details/70113349
+
+27. 重载和重写
+
+28. 介绍设计模式中command模式用作redo/undo功能的一些细节，并且关于redo/undo的实现除了command模式有没用什么替代方案
+
+29. 一个有500个用户的广播系统，你怎么做性能优化
+
+答：http://www.techug.com/post/10-tips-for-system-performence-optimize.html
+
+30. 当用户提交请求后，却立即按撤回按钮，涉及性能的数据落地问题你怎么处理
+
+32. ibatis跟hibernate的区别
+
+答：http://blog.csdn.net/abbydream/article/details/62236305
+
+33. ibatis是怎么实现映射的，它的映射原理是什么
+
+答：通过 SQL Map 将 Java 对象映射成 SQL 语句和将结果集再转化成 Java 对象，与其他 ORM 框架相比，既解决了 Java 对象与输入参数和结果集的映射，又能够让用户方便的手写使用 SQL 语句
+
+34. Java I/O底层细节（注意是底层细节，而不是怎么用）
+
+答：http://blog.csdn.net/chuntiandejiaobu10/article/details/52458804
+
+35. 你对mysql有什么了解
+
+36.说一下数据库事务的四个特性，为什么mysql事务能保证失败回滚
+
+37. mysql数据库的锁有多少种，怎么编写加锁的sql语句
+
+答：https://www.cnblogs.com/luyucheng/p/6297752.html
+
+38. mysql什么情况下会触发表锁
+
+39. 页锁、乐观锁、悲观锁
+
+40. tcp三次握手的过程
+
+答：http://blog.csdn.net/sssnmnmjmf/article/details/68486261
+
+41. 进程跟线程的区别
+
+答：http://blog.csdn.net/whl_program/article/details/70217354
+
+42.redis的操作是不是原子操作
+
+43.ArrayList跟LinkedList的底层实现原理，使用场景
+
+44.B+树
+
+45.一道算法题，在一个整形数组中，有正数有负数，找出和最大的子串
+
+46.秒杀系统的优化？
+
+答：http://www.cnblogs.com/luyucheng/p/6340758.html
+
+48.Tomcat reloadable实现原理
+
+47.Tomcat 接收用户数据的IO原理（我回答的就是NIO，面试官说还可以，另外讲一下对Reactor模式和Proactor模式的理解）
+
+48.JDK线程池的创建参数有哪些？
+
+答：http://blog.csdn.net/guanyueliuxing/article/details/53585209
+
+初始线程池数，核心线程池数，最大线程池数等等
+
+49.OOM异常的发生原因
+
+答：https://www.cnblogs.com/yangtao1995/p/6079095.html
+
+50.你是否接触过工作流方面的技术？讲一下你对工作流的理解
+
+答：OA系统用的比较多。工作流的作用呢，就是确保数据流程完整，保持状态一致正确，有倒计时功能的状态可以自动更新状态，发布事件。
+
+Spring有个很神奇的功能叫做Quartz.相信很多盆友都了解，关于Quartz以后单独讲，我们知道他就是一个定时器任务，可以在我们配置的任何时间启动，实现相应的功能。我们项目中的工作流就是依托了Quartz实现了工作流的超时动作
+
+http://blog.csdn.net/david_lou/article/details/54891354
+
+51.ActivityMQ的实现
+
+答：http://heisetoufa.iteye.com/blog/1908335
+
+52.项目中能处理的数据量有多大，能精确的多少秒
+
+53.扩容问题NIO的原理线程组的一些问题
+
+54.Aop在Java中的具体实现
+
+55.动态代理和普通代理的区别
+
+56.超大数据量在内存里的存储用什么数据结构合适
+
+57.IOC实现原理，发射？
+
+58.如果你来实现，来搭一个spring框架，请问你如何去实现？
+
+59.乐观锁和悲观锁
+
+60.Tomcat 生命周期
+
+61.订单处理和库存的问题
+
+62.用户和角色多对多的表设计
+
+63.Java集合
+
+64.arraylist的扩容底层原理
+
+答：https://www.cnblogs.com/kuoAT/p/6771653.html
+
+65.中间件和消息处理
+
+66.多线程
+
+支付宝（杭州）
+
+67.虚拟机的堆栈空间比例
+
+68.spring的实现原理
+
+69.如何设计12306网站
+
+70.序列化速度慢，使用fastjson转换就快了，那么为什么慢了，fastjson快在哪里
+
+71.hashmap实现原理
+
+72.多线程的安全性
+
+73.大数据量并发
+
+74.调用远程服务
+
+75.dfs理解？
+
+76.spring mvc实现原理（一共几步，步骤分别是什么）
+
+77.线程通信技术有那几种？
+
+78.数据库的删除有几种，分别有什么区别？
+
+79.session保存的值过大丢失怎么办？
+
+80.冒泡排序，写一个
+
+81.事务，多线程
+
+82.jvm相关，分布式事务，spring aop
+
+83.高并发的解决方案
+
+84.SSL握手
+
+85.servlet的生命周期
+
+86.OSGI
+
+87.多线程，分布式，JVM
+
+88.死锁和并发
+
+89.高并发的计数器
+
+90.编程序将一个字符串反转
+
+91.jsp中forward和redirect区别
+
+92.触发器的作用
+
+93.xml在jsp中的类型
+
+94.接口和抽象的区别
