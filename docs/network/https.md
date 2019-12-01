@@ -7,7 +7,7 @@
 
 ## 从网络协议的角度理解 HTTPS
 
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g7px798reuj304k09lmx5.jpg)
+![](https.assets/006y8mN6ly1g7px798reuj304k09lmx5.jpg)
 
 HTTP：HyperText Transfer Protocol 超文本传输协议
 HTTPS：Hypertext Transfer Protocol Secure 超文本传输安全协议
@@ -20,7 +20,7 @@ HTTPS 使用 TLS 保证安全，这里的“安全”分两部分，一是传输
 
 ### TLS 工作流程
 
-![image.png](https://i.loli.net/2019/08/29/lkERqv3mfgoJKd9.png)
+![image.png](https.assets/lkERqv3mfgoJKd9.png)
 此为服务端单向认证，还有客户端/服务端双向认证，流程类似，只不过客户端也有自己的证书，并发送给服务器进行验证
 
 ### 密码基础
@@ -36,7 +36,7 @@ HTTPS 使用 TLS 保证安全，这里的“安全”分两部分，一是传输
 
 > 消息认证码用于验证和认证，而不是加密
 
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g913bn8hdlj315i0u0dhb.jpg)
+![](https.assets/006y8mN6ly1g913bn8hdlj315i0u0dhb.jpg)
 
 1. 发送者与接收者事先共享秘钥
 2. 发送者根据发送消息计算 MAC 值
@@ -48,7 +48,7 @@ HTTPS 使用 TLS 保证安全，这里的“安全”分两部分，一是传输
 #### 3 数字签名
 
 消息认证码的缺点在于**无法防止否认**，因为共享秘钥被 client、server 两端拥有，server 可以伪造 client 发送给自己的消息（自己给自己发送消息），为了解决这个问题，我们需要它们有各自的秘钥不被第二个知晓（这样也解决了共享秘钥的配送问题）。
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g913ba5mlwj30uf0u0q4f.jpg)
+![](https.assets/006y8mN6ly1g913ba5mlwj30uf0u0q4f.jpg)
 
 > 数字签名和消息认证码都**不是为了加密**
 > 可以将单向散列函数获取散列值的过程理解为使用 md5 摘要算法获取摘要的过程
@@ -70,7 +70,7 @@ server：密文 + 私钥 = 明文
 
 > 想象这个场景：你想在支付宝页面交易，你需要支付宝的公钥进行加密通信，于是你从百度上搜索关键字“支付宝公钥”，你获得了支什宝的公钥，这个时候，支什宝通过中间人攻击，让你访问到了他们支什宝的页面，最后你在这个支什宝页面完美的使用了支什宝的公钥完成了与支什宝的交易
 
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g913axbx56j316y0nuaat.jpg)
+![](https.assets/006y8mN6ly1g913axbx56j316y0nuaat.jpg)
 
 在上面的场景中，你可以理解支付宝证书就是由支付宝的公钥、和给支付宝颁发证书的企业的数字签名组成
 任何人都可以给自己或别人的公钥添加自己的数字签名，表明：我拿我的尊严担保，我的公钥/别人的公钥是真的，至于信不信那是另一回事了。
