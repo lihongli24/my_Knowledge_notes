@@ -4,8 +4,9 @@
 	高并发情况下，如果请求全都落到数据库上去，数据库肯定就崩了。数据库能承受的并发量一般到2000就差不多了，redis能抗上万的并发量。将热点数据放入redis,能在高并发的情况下给数据库降压。
 2. 高性能
 	redis数据在内存，mysql数据在磁盘上，响应速度肯定是redis快很多。
-	
 ### redis 线程模型
+
+![](redis.assets/006tNbRwly1g9n3dy9t22j30po0eu40n.jpg)
 
 1. 接受连接处使用多路复用的模式，同时监听多个socket
 2. 将事件放入队列中，文件事件分派器单线程讲事件关联处理器，进行处理。所以说redis是单线程的。
@@ -97,6 +98,7 @@ unsigned long estimateObjectIdleTime(robj *o) {
 	
 6. 淘汰那些最凉的
 
+
 ## redis的备份方式
 ### RDB (redis database redis数据库快照)
 #### 触发命令
@@ -104,6 +106,7 @@ unsigned long estimateObjectIdleTime(robj *o) {
     1.  阻塞
 2. `BGSAVE`
     1. 另起子线程，不会阻塞
+
 
 ```c
 // redisServer 结构中包括属性saveParams-- 可以用来指定BGSAVE的执行时间
@@ -127,6 +130,7 @@ struct saveParam{
 按照上面的结构体可以看出，我们可以根据`秒数`和`修改次数`触发`BGSAVE`
 ```
 save 900 1  ===> 900s内数据库执行了超过1次修改，触发BGSAVE
+
 ```
 
 触发条件判断
@@ -260,6 +264,7 @@ AOF重写涉及到大量的写入操作，所以需要单独启动子进程进�
 > PSYNC命令 PYSNC <runid> <offset> <br> runid:本从服务器上次同步的主服务id,用来比较是不是断开前连接的是本主服务器，如果不是，直接完整重同步 <br> offset:从服务器当前的offset,用来判断是否使用部分重同步
 
 #### 复制的实现步骤
+
 1. 设置需要同步的主服务器 <br> SLAVEOF `ip` `port`
 2. 建立socket
 3. 发送PING命令确认连接是否正常
@@ -274,6 +279,7 @@ AOF重写涉及到大量的写入操作，所以需要单独启动子进程进�
 
 ## redis的高可用架构
 ### 哨兵模式
+
 哨兵模式是redis`高可用`的实现方式之一
 使用一个或者多个哨兵(Sentinel)实例组成的系统，对redis节点进行监控，在主节点出现故障的情况下，能将从节点中的一个升级为主节点，进行故障转义，保证系统的可用性。
 ![redis哨兵模式.png](redis.assets/16be04fa764aba25.png)
@@ -328,7 +334,9 @@ AOF重写涉及到大量的写入操作，所以需要单独启动子进程进�
 ### 集群模式
 官方提供的分布式方案(槽指派/重新分片/故障转移)
 集群内的节点，都会有个数据结构存储整个集群内的节点信息
-```
+
+
+```c
 //整体
 struct clusterState{
   clusterNode *mySelf;
@@ -353,21 +361,20 @@ struct clusterLink{
   sds rcvbuf;  //输入缓存区
   struct clusterNode *node;
 }
-
 ```
 ![redis集群结构体.jpg](redis.assets/16be04fa76d05393.jpeg)
 
 #### 槽指派
 redis集群可以被分为16384个槽，只有这些槽全被指派了处理的节点的情况下，集群的状态才能是上线状态(ok)
 操作redis集群的时候，将key作为参数，就可以计算出对应的处理槽上，所以存储等操作都应该在该槽对应的节点上。通过这种方式，可以完美的实现集群存储的水平拓展。
-```
+```c
 def slot_number(key):
   return CRC16(key) & 16383
 //得到的结果就是槽的序号
 ```
 
 `槽指派的信息是怎么存储的`
-```
+```c
 struct clusterState{
   clusterNode *slots[16384]
  }
@@ -408,6 +415,118 @@ struct clusterNode{
 1. 哨兵模式监控权交给了哨兵系统，集群模式中是工作节点自己做监控
 2. 哨兵模式发起选举是选举一个leader哨兵节点来处理故障转移，集群模式是在从节点中选举一个新的主节点，来处理故障的转移
 
+
+
+## 使用redis做缓存可能遇到的问题
+
+### 缓存穿透
+
+大量无命中的请求，缓存中没有数据，请求达到数据库，数据库还是没有数据，之后的请求还是会从透过缓存落到数据库，不断的被穿透。
+
+#### 解决办法
+1. 为数据库中没有值的key，在redis中也建立临时的缓存数据空。缺点是可能会在缓存中添加大量的空值键(
+2. 使用布隆过滤器来检测数据存不存在。缺点是需要维护布隆过滤器。
+
+### 缓存雪崩
+大量设置了过期时间的key在同一时间过期，导致大量请求都达到DB上。DB瞬间压力太大，直接雪崩。
+#### 解决方式
+1. 合理的利用锁，或者队列的方式避免缓存失效的时候对DB的压力---导致访问的吞吐量下降
+2. 分散key的失效时间
+3. 使用hystrix限流和降级
+
+
+### 缓存击穿
+某个热点数据在失效的时候，大量的请求涌入DB层，导致服务挂掉。`有点像电流击穿空气`
+#### 解决办法
+1. 使用互斥锁(mutex key)
+当发现缓存值为空的时候，使用锁的方式，试真正访问数据库的只要一个请求
+
+
+```java
+public String get(key) {
+      String value = redis.get(key);
+      if (value == null) { //代表缓存值过期
+          //设置3min的超时，防止del操作失败的时候，下次缓存过期一直不能load db
+		  if (redis.setnx(key_mutex, 1, 3 * 60) == 1) {  //代表设置成功
+               value = db.get(key);
+                      redis.set(key, value, expire_secs);
+                      redis.del(key_mutex);
+              } else {  //这个时候代表同时候的其他线程已经load db并回设到缓存了，这时候重试获取缓存值即可
+                      sleep(50);
+                      get(key);  //重试
+              }
+          } else {
+              return value;      
+          }
+```
+
+2. "提前"使用互斥锁(mutex key)
+差不多逻辑就是使用一个比过期时间段的time,获取value的时候，判断缓存时间是不是到time了，如果到了提前刷新cache和value
+```java
+v = memcache.get(key);  
+if (v == null) {  
+    if (memcache.add(key_mutex, 3 * 60 * 1000) == true) {  
+        value = db.get(key);  
+        memcache.set(key, value);  
+        memcache.delete(key_mutex);  
+    } else {  
+        sleep(50);  
+        retry();  
+    }  
+} else {  
+    if (v.timeout <= now()) {  
+        if (memcache.add(key_mutex, 3 * 60 * 1000) == true) {  
+            // extend the timeout for other threads  
+            v.timeout += 3 * 60 * 1000;  
+            memcache.set(key, v, KEY_TIMEOUT * 2);  
+  
+            // load the latest value from db  
+            v = db.get(key);  
+            v.timeout = KEY_TIMEOUT;  
+            memcache.set(key, value, KEY_TIMEOUT * 2);  
+            memcache.delete(key_mutex);  
+        } else {  
+            sleep(50);  
+            retry();  
+        }  
+    }  
+} 
+```
+3. "永不过期"
+数据层面上的永不过期，value中维护一个timeout,如果获取值的时候发现过期了，进行维护
+```java
+String get(final String key) {  
+        V v = redis.get(key);  
+        String value = v.getValue();  
+        long timeout = v.getTimeout();  
+        if (v.timeout <= System.currentTimeMillis()) {  
+            // 异步更新后台异常执行  
+            threadPool.execute(new Runnable() {  
+                public void run() {  
+                    String keyMutex = "mutex:" + key;  
+                    if (redis.setnx(keyMutex, "1", 3*60)) {  
+                        String dbValue = db.get(key);  
+                        redis.set(key, dbValue);  
+                        redis.delete(keyMutex);  
+                    }  
+                }  
+            });  
+        }  
+        return value;  
+}
+```
+
+
+#### 整体处理方式
+
+- 事前：Redis 高可用，主从 + 哨兵，Redis Cluster，避免全盘崩溃。
+- 事中：本地 ehcache 缓存 + hystrix 限流 & 降级，避免数据库承受太多压力。
+- 事后：Redis 持久化，一旦重启，自动从磁盘上加载数据，快速恢复缓存数据。
+
+#### 请求处理方式
+
+1. 用户请求先访问本地缓存，无命中后再访问 Redis，如果本地缓存和 Redis 都没有再查数据库，并把数据添加到本地缓存和 Redis；
+2. 由于设置了限流，一段时间范围内超出的请求走降级处理(返回默认值，或给出友情提示)。
 
 
 ## Redis  知识体系

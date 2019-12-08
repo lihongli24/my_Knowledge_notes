@@ -13,7 +13,7 @@ public class LRU001 {
     private int totalSize;
 
     public LRU001(int totalSize) {
-        cache = new LinkedHashMap<>();
+        cache = new LinkedHashMap<String, String>();
         this.totalSize = totalSize;
     }
 
