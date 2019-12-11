@@ -13,7 +13,7 @@ public class LRU002 {
      * 依靠linkedHashMap自己提供的该功能
      * @param totalSize
      */
-    public LRU002(int totalSize){
+    public LRU002(final int totalSize){
         cache = new LinkedHashMap<String, String>(totalSize, 0.45f, true){
             @Override
             protected boolean removeEldestEntry(Entry eldest) {
