@@ -27,3 +27,11 @@
 3. 某一个broker优雅下线的时候
 
     AR中第一个存活的副本&&该副本在ISR中&&该副本不在下线的broker中
+
+
+
+
+
+##  参考资料
+
+[spring使用kafka](https://blog.csdn.net/qq_26323323/article/details/84938892)

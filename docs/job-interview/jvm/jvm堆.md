@@ -241,3 +241,15 @@ graph TD
   >  "-XX:+UseG1GC"：指定使用G1收集器；
 
 ![](https://tva1.sinaimg.cn/large/006y8mN6ly1g9bk6up9dzj30dh04zq3n.jpg)
+
+
+
+## cg root有哪些
+
+在Java语言里，可作为GC Roots对象的包括如下几种： 
+
+1. 虚拟机栈(栈桢中的本地变量表)中的引用的对象 
+2. 方法区中的类静态属性引用的对象 
+3. 方法区中的常量引用的对象 
+4. 本地方法栈中JNI的引用的对象
+5. yong gc的时候，老年代脏表指向区域的对象
