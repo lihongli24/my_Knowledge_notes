@@ -2,7 +2,7 @@
 
 ##  jvm堆的分布
 
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g9beeuj4s5j316e0eadh8.jpg)
+![](jvm堆.assets/006y8mN6ly1g9beeuj4s5j316e0eadh8.jpg)
 
 eden + s0 + s1 = 新生代
 
@@ -111,7 +111,7 @@ graph TD
 1. 标记需要回收的对象
 2. 将对象进行回收
 
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g9bel51ez9j30ny0jpq4c.jpg)
+![](jvm堆.assets/006y8mN6ly1g9bel51ez9j30ny0jpq4c.jpg)
 #### 存在的问题
 1. 空间问题：清除完后，会留下很多不连续的空间碎片
 2. 效率问题
@@ -120,7 +120,7 @@ graph TD
 1. 维护两块内存空间
 2. 一块使用完的时候，把存活下来的对象复制到另一块上去
 3. 将原来那块清空
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g9bekkqvafj30ny0jpjsu.jpg)
+![](jvm堆.assets/006y8mN6ly1g9bekkqvafj30ny0jpjsu.jpg)
 
 #### 存在的问题
 1. 空间问题：空间使用率很低，至少要保持一块空闲区域
@@ -129,7 +129,7 @@ graph TD
 1. 对需要回收的对象进行标记
 2. 将存活下来的对象向前移动
 3. 清除掉边界外的对象
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g9bek18pipj30hs09hmxo.jpg)
+![](jvm堆.assets/006y8mN6ly1g9bek18pipj30hs09hmxo.jpg)
 
 ### 分代收集算法
 按照新生代和老年代不同的情况，分别使用不同的收集算法。
@@ -145,7 +145,7 @@ graph TD
 - **并行（Parallel）** ：指多条垃圾收集线程并行工作，但此时用户线程仍然处于等待状态。
 - **并发（Concurrent）**：指用户线程与垃圾收集线程同时执行（但不一定是并行，可能会交替执行），用户程序在继续运行，而垃圾收集器运行在另一个 CPU 上。
 
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g9bhwykr1oj30bd05t0t6.jpg)
+![](jvm堆.assets/006y8mN6ly1g9bhwykr1oj30bd05t0t6.jpg)
 
 * 新生代收集器：Serial、ParNew、Parallel Scavenge；
 * 老年代收集器：Serial Old、Parallel Old、CMS；
@@ -163,7 +163,7 @@ graph TD
 
      
 
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g9bh2e9nq9j30a205rq34.jpg)
+![](jvm堆.assets/006y8mN6ly1g9bh2e9nq9j30a205rq34.jpg)
 
 ### ParNew 收集器(新生代)
 
@@ -175,7 +175,7 @@ graph TD
   > "-XX:+UseParNewGC"：强制指定使用ParNew；  
   > "-XX:ParallelGCThreads"：指定垃圾收集的线程数量，ParNew默认开启的收集线程与CPU的数量相同；
 
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g9bi0icpbkj30bx079jro.jpg)
+![](jvm堆.assets/006y8mN6ly1g9bi0icpbkj30bx079jro.jpg)
 
 ### Parallel Scavenge 收集器(新生代)--注重吞吐量
 
@@ -197,7 +197,7 @@ graph TD
 * 采用"标记-整理"算法（还有压缩，Mark-Sweep-Compact）；
 * 单线程
 
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g9bi60n5bmj30bb03pwex.jpg)
+![](jvm堆.assets/006y8mN6ly1g9bi60n5bmj30bb03pwex.jpg)
 
 ### Parallel Old 收集器(老年代)
 
@@ -205,7 +205,7 @@ graph TD
 * 采用"标记-整理"算法；
 * 多线程
 
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g9bi7f3gzpj30dk058gmh.jpg)
+![](jvm堆.assets/006y8mN6ly1g9bi7f3gzpj30dk058gmh.jpg)
 
 ### CMS 收集器(老年代)
 
@@ -218,7 +218,7 @@ graph TD
 
 
 
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g9bi9jsq9dj30d504xq3n.jpg)
+![](jvm堆.assets/006y8mN6ly1g9bi9jsq9dj30d504xq3n.jpg)
 
 
 
@@ -240,7 +240,7 @@ graph TD
 
   >  "-XX:+UseG1GC"：指定使用G1收集器；
 
-![](https://tva1.sinaimg.cn/large/006y8mN6ly1g9bk6up9dzj30dh04zq3n.jpg)
+![](jvm堆.assets/006y8mN6ly1g9bk6up9dzj30dh04zq3n.jpg)
 
 
 
