@@ -16,8 +16,9 @@ public class SemaphoreTest {
 
     public static void main(String[] args) {
         BlockingQueue<Runnable> blockingQueue = new LinkedBlockingQueue<>(20);
-        ExecutorService executorService = new ThreadPoolExecutor(10, 100,
-            0L, TimeUnit.MILLISECONDS, blockingQueue);
+        ThreadPoolExecutor executorService = new ThreadPoolExecutor(10, 100,
+            1L, TimeUnit.MILLISECONDS, blockingQueue);
+        executorService.allowCoreThreadTimeOut(true);
 
         //创建10个线程，丢入线程池执行
         for (int i = 0; i < 10; i++) {

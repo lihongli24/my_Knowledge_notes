@@ -18,16 +18,13 @@ public class ThreadJoinTest extends Thread{
             System.out.println("num:"+i);
         }
         public static void main(String[] args) {
-//            Thread previousThread=Thread.currentThread();
-//            for(int i=0;i<10;i++){
-//                ThreadJoinTest joinDemo=new ThreadJoinTest(previousThread,i);
-//                joinDemo.start();
-//                previousThread=joinDemo;
-//            }
-//            System.out.println("end");
-
-            System.out.println(3/2);
-            System.out.println(3%2);
+            Thread previousThread=Thread.currentThread();
+            for(int i=0;i<10;i++){
+                ThreadJoinTest joinDemo=new ThreadJoinTest(previousThread,i);
+                joinDemo.start();
+                previousThread=joinDemo;
+            }
+            System.out.println("end");
         }
 
 }

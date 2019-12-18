@@ -561,3 +561,27 @@ Using where的作用只是提醒我们MySQL将用where子句来过滤结果集
 表示使用了非索引字段排序，因为索引字段的排序已经在索引里面了
 
 ![img](Mysql知识点.assets/779774-20190417150932707-815483741.png)
+
+
+
+
+
+### 什么情况下会导致索引失效
+
+1. 使用or的时候，所有的条件都必须有索引。如果一个没有的话，就会导致索引失效
+
+2. 复合索引的情况，没有最左匹配的情况下，无法使用索引
+
+3. like查询是以%开头。也是最左匹配的意思
+
+   ![img](Mysql%E7%9F%A5%E8%AF%86%E7%82%B9.assets/Center-20191216194212472.png)
+
+4. 数据类型隐式转化的情况
+
+   ![img](Mysql%E7%9F%A5%E8%AF%86%E7%82%B9.assets/Center.png)
+
+5. 对索引字段进行计算会导致索引失效。错误的例子：select * from test where id-1=9; 正确的例子：select * from test where id=10; 
+6. ,not in ,not exist. 
+7. B-tree索引 is null不会走,is not null会走,位图索引 is null,is not null 都会走 
+8. 联合索引 is not null 只要在建立的索引列（不分先后）都会走, in null时 必须要和建立索引第一列一起使用,当建立索引第一位置条件是is null 时,其他建立索引的列可以是is null（但必须在所有列 都满足is null的时候）,或者=一个值； 当建立索引的第一位置是=一个值时,其他索引列可以是任何情况（包括is null =一个值）,以上两种情况索引都会走。其他情况不会走。
+9. 7和8没遇见过

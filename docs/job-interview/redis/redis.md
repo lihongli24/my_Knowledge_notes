@@ -98,6 +98,10 @@ unsigned long estimateObjectIdleTime(robj *o) {
 	
 6. 淘汰那些最凉的
 
+#### redis的lfu实现
+
+[lfu实现,暂时没看懂](https://www.cnblogs.com/linxiyue/p/10955533.html)
+
 
 ## redis的备份方式
 ### RDB (redis database redis数据库快照)

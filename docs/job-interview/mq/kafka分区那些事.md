@@ -11,7 +11,7 @@
 > 分担broker中的写压力
 
 
-### leader选举
+### partition的leader选举
 > partation只有leader提供读写服务，其他的fllower都只是进行数据的备份，当leader挂掉了的时候，从中选举出一个成为新的leader.
 1. 原leader下线的时候
   
