@@ -2,7 +2,9 @@ package algorithm.search;
 
 import org.testng.collections.Lists;
 
+import java.util.ArrayDeque;
 import java.util.List;
+import java.util.Queue;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
@@ -126,21 +128,44 @@ public class TreeItr {
         }
     }
 
-    //todo:没写完
-    private void postOrder01(Node node) {
+    /**
+     * 深度优先遍历
+     *
+     * @param node
+     */
+    private void depthFirstSearch(Node node) {
         Stack<Node> stack = new Stack<>();
-        while (node != null || stack.size() > 0) {
-            if (node != null) {
-                stack.push(node);
-                node = node.lchild;
-            } else {
-                node = stack.pop();
-                if(null == node.rchild){
-                    itrResult.add(node.data);
-                    node = null;
-                }else {
-                    node = node.rchild;
-                }
+        stack.push(node);
+        while (stack.size() > 0) {
+            node = stack.pop();
+            itrResult.add(node.data);
+
+            if (null != node.rchild) {
+                stack.push(node.rchild);
+            }
+            if (null != node.lchild) {
+                stack.push(node.lchild);
+            }
+        }
+
+    }
+
+    /**
+     * 广度优先遍历
+     *
+     * @param node
+     */
+    private void breadthFirstSearch(Node node) {
+        Queue<Node> nodeQueue = new ArrayDeque<>();
+        nodeQueue.add(node);
+        while (!nodeQueue.isEmpty()) {
+            node = nodeQueue.poll();
+            itrResult.add(node.data);
+            if (null != node.lchild) {
+                nodeQueue.add(node.lchild);
+            }
+            if (null != node.rchild) {
+                nodeQueue.add(node.rchild);
             }
         }
     }
@@ -152,8 +177,10 @@ public class TreeItr {
 //        treeItr.inOrder(treeItr.root);
 //        treeItr.postOrder(treeItr.root);
 //        treeItr.preOrder01(treeItr.root);
-        treeItr.inOrder01(treeItr.root);
+//        treeItr.inOrder01(treeItr.root);
 //        treeItr.postOrder01(treeItr.root);
+//        treeItr.depthFirstSearch(treeItr.root);
+        treeItr.breadthFirstSearch(treeItr.root);
         String result = treeItr.itrResult.stream().collect(Collectors.joining(","));
         System.out.println(result);
 
