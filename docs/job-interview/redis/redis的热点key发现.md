@@ -142,3 +142,10 @@ hot key found with counter: 231 keyname: user:125
 
 * [cachecloud](https://github.com/sohutv/cachecloud)
 * [禁用不安全的命令](https://mp.weixin.qq.com/s?__biz=MzI3ODcxMzQzMw==&mid=2247487198&idx=2&sn=eea95b2fbad114cabbfbcf1804b8b081&chksm=eb538be8dc2402fee685771deff4852214bc908448ca3cc3644794d66d72d8af843289f0d65d&scene=21#wechat_redirect)
+
+
+
+## 参考资料
+
+[热点key](https://toutiao.io/posts/xq4s10/preview)
+
