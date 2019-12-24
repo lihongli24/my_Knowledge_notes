@@ -20,16 +20,21 @@ public class EchoServer {
     }
 
     private void start() throws InterruptedException {
+        //定义4个handler,前3个实现channelRead
+        //最后一个handler实现的是channelReadComplete
         final EchoServerHandler handler01 = new EchoServerHandler(1);
         final EchoServerHandler handler02 = new EchoServerHandler(2);
         final EchoServerHandler handler03 = new EchoServerHandler(3);
         final EchoEndHandler endHandler = new EchoEndHandler();
+        //定义一个eventLoopGroup,并且将他和ServerBootStrap绑定
         EventLoopGroup group = new NioEventLoopGroup();
         ServerBootstrap serverBootstrap = new ServerBootstrap();
         try {
             serverBootstrap.group(group)
+                    //使用nio的方式取处理事件
                     .channel(NioServerSocketChannel.class)
                     .localAddress(new InetSocketAddress(8080))
+                    //通过这个口子取注册handler
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
@@ -37,9 +42,12 @@ public class EchoServer {
                             ch.pipeline().addLast(endHandler);
                         }
                     });
+            //绑定成功返回channelFuture
             ChannelFuture channelFuture = serverBootstrap.bind().sync();
+            //阻塞到channel close
             channelFuture.channel().closeFuture().sync();
         } finally {
+            //优雅下线。不知道什么概念，之后细看
             group.shutdownGracefully().sync();
         }
     }
