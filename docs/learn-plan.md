@@ -21,5 +21,9 @@
 2. netty处理tcp的拆包后导致的粘包和分包问题
 3. netty的零拷贝
 
+[网友的源码分析，很细致](https://www.jianshu.com/p/46861a05ce1e)
 
+## java and grovy
+
+[java和grovy](https://www.cnblogs.com/duanxz/p/10133079.html)
 
