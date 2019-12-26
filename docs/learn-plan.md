@@ -23,6 +23,8 @@
 
 [网友的源码分析，很细致](https://www.jianshu.com/p/46861a05ce1e)
 
+[知识点](https://segmentfault.com/a/1190000007283053)
+
 ## java and grovy
 
 [java和grovy](https://www.cnblogs.com/duanxz/p/10133079.html)

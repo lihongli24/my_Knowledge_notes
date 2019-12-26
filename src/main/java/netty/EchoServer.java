@@ -7,6 +7,7 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.logging.LoggingHandler;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -34,6 +35,7 @@ public class EchoServer {
                     //使用nio的方式取处理事件
                     .channel(NioServerSocketChannel.class)
                     .localAddress(new InetSocketAddress(8080))
+                    .handler(new LoggingHandler())
                     //通过这个口子取注册handler
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
@@ -63,6 +65,11 @@ public class EchoServer {
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
             ByteBuf byteBuffer = (ByteBuf) msg;
             System.out.println("handler" + index + " received msg" + byteBuffer.toString(StandardCharsets.UTF_8));
+        }
+
+        @Override
+        public void channelActive(ChannelHandlerContext ctx) throws Exception {
+            super.channelActive(ctx);
         }
     }
 
