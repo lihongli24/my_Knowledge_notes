@@ -1,7 +1,5 @@
 package algorithm.leetcode;
 
-import java.util.Arrays;
-
 public class GoSteps {
 
     /**

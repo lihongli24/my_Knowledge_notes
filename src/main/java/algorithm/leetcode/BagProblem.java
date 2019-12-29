@@ -26,7 +26,31 @@ public class BagProblem {
         }
     }
 
+    /**
+     *  动态规划的解法
+     * @param total
+     * @return
+     */
+    private static int dpBag(int total) {
+        int[][] fmap = new int[w.length][total + 1];
+        for (int i = 0; i < w.length; i++) {
+            for (int j = 0; j <= total; j++) {
+                if (i == 0) {
+                    fmap[i][j] = 0;
+                } else if (w[i] > j) {
+                    fmap[i][j] = fmap[i - 1][j];
+                } else {
+                    int a = fmap[i - 1][j];
+                    int b = fmap[i - 1][j - w[i]] + p[i];
+                    fmap[i][j] = Math.max(a, b);
+                }
+            }
+        }
+        return fmap[w.length - 1][total];
+    }
+
     public static void main(String[] args) {
-        System.out.println(recBag(w.length - 1, 10));
+//        System.out.println(recBag(w.length - 1, 10));
+        System.out.println(dpBag(10));
     }
 }
