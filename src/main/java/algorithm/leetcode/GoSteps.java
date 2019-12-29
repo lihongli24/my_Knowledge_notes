@@ -7,16 +7,14 @@ public class GoSteps {
     /**
      * 递归算法
      *
-     * @param length 长度
+     * @param i 长度
      * @return
      */
-    private static int recSteps(int length) {
-        if (length == 1) {
-            return 1;
-        } else if (length == 2) {
-            return 2;
+    private static int recSteps(int i) {
+        if (i <= 2) {
+            return i;
         } else {
-            return recSteps(length - 1) + recSteps(length - 2);
+            return recSteps(i - 1) + recSteps(i - 2);
         }
     }
 
@@ -30,17 +28,12 @@ public class GoSteps {
     private static int dpSteps(int length) {
         int[] opt = new int[length + 1];
         for (int i = 0; i <= length; i++) {
-            if (i < 1) {
-                opt[i] = 0;
-            } else if (i == 1) {
-                opt[i] = 1;
-            } else if (i == 2) {
-                opt[i] = 2;
+            if (i <= 2) {
+                opt[i] = i;
             } else {
                 opt[i] = opt[i - 1] + opt[i - 2];
             }
         }
-        System.out.println(Arrays.toString(opt));
         return opt[length];
     }
 

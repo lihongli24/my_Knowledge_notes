@@ -31,3 +31,13 @@ docs/config-files/vimrc，将他放到~目录下，修改文件名为.vimrc
 
 
 
+## 学习计划
+
+### 算法
+
+一天一算法
+
+文件夹：/docs/algorithm
+
+
+
