@@ -245,3 +245,30 @@ ServerBootstrapAcceptor被加入到server channel的pipleline之后，当出现r
 
 
 
+完成上面的步骤，
+
+1. 我们初始化了一个channel,
+2. 将handler和这个channel关联上了
+3. 使用ServerBootstrapAcceptor的方式，在发成server channel的read的时候(处理和client的连接的时候)，将childHandler等和新简历的channel关联起来。---不是创建的过程中，是一个异步的操作。
+4. 最后将group和server channel关联起来。我们需要一个eventloop能定期的取判断server channel上的事件。
+
+
+
+
+
+
+
+## 客户端连接
+
+
+
+![img](netty%E7%9A%84%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B.assets/linkedkeeper0_e1335c47-09d2-4f78-8082-3d7b34701fdf.jpg)
+
+
+
+## 请求的处理
+
+## 其他资料
+
+[源码讲解](https://segmentfault.com/a/1190000007403873)
+
