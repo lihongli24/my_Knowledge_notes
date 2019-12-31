@@ -1,5 +1,7 @@
 package algorithm.sort;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.util.Arrays;
 
 /**
@@ -8,7 +10,9 @@ import java.util.Arrays;
  * @link https://www.cnblogs.com/onepixel/p/7674659.html
  */
 public class SortTest {
-
+    /**
+     *  ======================归并排序================================
+     */
     /**
      * 冒泡排序
      *
@@ -28,7 +32,9 @@ public class SortTest {
         }
         return input;
     }
-
+    /**
+     * ======================选择排序================================
+     */
     /**
      * 选择排序
      *
@@ -57,6 +63,9 @@ public class SortTest {
         }
         return input;
     }
+    /**
+     * ======================插入排序================================
+     */
 
     /**
      * 插入排序
@@ -79,7 +88,12 @@ public class SortTest {
     }
 
     /**
+     * ======================归并排序================================
+     */
+
+    /**
      * 归并排序
+     *
      * @param input
      * @return
      */
@@ -125,12 +139,70 @@ public class SortTest {
         return result;
     }
 
+    /**
+     * ======================堆排序================================
+     * @see 网上教程：https://www.bilibili.com/video/av47196993?from=search&seid=11328586015539132708
+     */
+    /**
+     * 对子i节点为父节点的子树进行堆转化
+     *
+     * @param tree 树
+     * @param n    树上所有的节点
+     * @param i    当前进行堆转化的父节点--子树的顶
+     */
+    private static void heapify(int[] tree, int n, int i) {
+        //计算出i节点的两个子节点，当子节点存在的前提下获取到最大的点，和i位置的点进行转化
+        int c1 = 2 * i + 1;
+        int c2 = 2 * i + 2;
+        int max = i;
+        if (c1 < n && tree[c1] > tree[max]) {
+            max = c1;
+        }
+        if (c2 < n && tree[c2] > tree[max]) {
+            max = c2;
+        }
+
+        if (max != i) {
+            ArrayUtils.swap(tree, i, max);
+            //因为max位置的节点和i做了交换，所以需要对max的位置的树进行堆转化
+            heapify(tree, n, max);
+        }
+    }
+
+    /**
+     * 第一次运行的时候,将当前的完全二叉树转化为堆
+     *
+     * @param tree 全部数据
+     * @param n    所有节点的数量
+     */
+    private static void buildHeap(int[] tree, int n) {
+        int lastNode = n - 1;
+        int lastParent = (lastNode - 1) / 2;
+        for (int i = lastParent; i >= 0; i--) {
+            heapify(tree, n, i);
+        }
+    }
+
+    /**
+     * 进行堆排序
+     *
+     * @param tree
+     */
+    private static void heapSort(int[] tree) {
+        buildHeap(tree, tree.length);
+        for (int i = tree.length - 1; i > 0; i--) {
+            ArrayUtils.swap(tree, 0, i);
+            heapify(tree, i, 0);
+        }
+    }
+
     public static void main(String[] args) {
         int[] a = new int[]{4, 1, 3, 5, 2, 6, 1};
 //        a = blueSort(a);
 //        a = selectionSort(a);
 //        a = insertionSort(a);
-        a = mergeSort(a);
+//        a = mergeSort(a);
+        heapSort(a);
         System.out.println(Arrays.toString(a));
     }
 }
