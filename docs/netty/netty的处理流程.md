@@ -252,7 +252,15 @@ ServerBootstrapAcceptor被加入到server channel的pipleline之后，当出现r
 3. 使用ServerBootstrapAcceptor的方式，在发成server channel的read的时候(处理和client的连接的时候)，将childHandler等和新简历的channel关联起来。---不是创建的过程中，是一个异步的操作。
 4. 最后将group和server channel关联起来。我们需要一个eventloop能定期的取判断server channel上的事件。
 
-![image-20191231000145157](netty%E7%9A%84%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B.assets/image-20191231000145157.png)
+### group().register(channel)
+
+上面执行initAndRegister的时候，发现有一行代码`config().group().register(channel);`,
+
+config().group()是从当前的bootsrap中获取到它的group,由上面的代码就是我们设置进去的NioEventLoopGroup，
+
+<img src="netty%E7%9A%84%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B.assets/image-20191231230311474.png" alt="image-20191231230311474" style="zoom: 33%;" />
+
+
 
 
 
