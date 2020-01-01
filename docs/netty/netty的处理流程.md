@@ -76,6 +76,111 @@ ServerBootstrap中维护着两个EventLoopGroup，
 * group:处理连接，
 * childGroup:处理读写的
 
+#### NioEventLoopGroup();
+
+我们在代码里，往serverBootstrap里面注入了一个NioEventLoopGroup，下面分析下这个NioEventLoopGroup.
+
+从下面的类图可以看出来，NioEventLoopGroup继承自MultithreadEventExecutorGroup，我们在初始化NioEventLoopGroup的时候会调用到MultithreadEventExecutorGroup的构造函数
+
+```java
+protected MultithreadEventExecutorGroup(int nThreads, Executor executor,
+                                        EventExecutorChooserFactory chooserFactory, Object... args) {
+  //判断线程数 DEFAULT_EVENT_LOOP_THREADS = Math.max(1, SystemPropertyUtil.getInt(
+//                "io.netty.eventLoopThreads", NettyRuntime.availableProcessors() * 2));
+  if (nThreads <= 0) {
+    throw new IllegalArgumentException(String.format("nThreads: %d (expected: > 0)", nThreads));
+  }
+
+  //如果没有执行器，生成一个执行器
+  //后面创建eventloop的时候，会把这个执行器传递进去，同一个eventLoopGroup使用一个执行器
+  //虽然eventLoop也是一个Executor，但是真正执行任务时使用到的执行器时这个，这个Executor会被包装进eventLoop
+  if (executor == null) {
+    executor = new ThreadPerTaskExecutor(newDefaultThreadFactory());
+  }
+
+  //按照线程数，初始化evetloop的线程数组
+  children = new EventExecutor[nThreads];
+
+  //遍历构造这个EventExecutor数组中的数据，本实例中时NioEventLoop
+  for (int i = 0; i < nThreads; i ++) {
+    boolean success = false;
+    try {
+      children[i] = newChild(executor, args);
+      success = true;
+    } catch (Exception e) {
+      // TODO: Think about if this is a good exception type
+      throw new IllegalStateException("failed to create a child event loop", e);
+    } finally {
+      //如果时失败了，清理资源
+      if (!success) {
+        for (int j = 0; j < i; j ++) {
+          children[j].shutdownGracefully();
+        }
+
+        for (int j = 0; j < i; j ++) {
+          EventExecutor e = children[j];
+          try {
+            while (!e.isTerminated()) {
+              e.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
+            }
+          } catch (InterruptedException interrupted) {
+            // Let the caller handle the interruption.
+            Thread.currentThread().interrupt();
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  //生成一个chooser,这个chooser有两种策略，当childre是2的幂次和不是2的幂次两种，应该是因为2的幂次使用位运算的方式效率会高点，其实也就是一个轮询的策略方式。
+  chooser = chooserFactory.newChooser(children);
+
+  final FutureListener<Object> terminationListener = new FutureListener<Object>() {
+    @Override
+    public void operationComplete(Future<Object> future) throws Exception {
+      if (terminatedChildren.incrementAndGet() == children.length) {
+        terminationFuture.setSuccess(null);
+      }
+    }
+  };
+
+  //设置中断的监听
+  for (EventExecutor e: children) {
+    e.terminationFuture().addListener(terminationListener);
+  }
+
+  Set<EventExecutor> childrenSet = new LinkedHashSet<EventExecutor>(children.length);
+  Collections.addAll(childrenSet, children);
+  readonlyChildren = Collections.unmodifiableSet(childrenSet);
+}
+
+```
+
+
+
+
+
+<img src="netty%E7%9A%84%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B.assets/image-20200101224242889.png" alt="image-20200101224242889" style="zoom: 33%;" />
+
+
+
+#### newChild
+
+```java
+NioEventLoopGroup:
+@Override
+protected EventLoop newChild(Executor executor, Object... args) throws Exception {
+  EventLoopTaskQueueFactory queueFactory = args.length == 4 ? (EventLoopTaskQueueFactory) args[3] : null;
+  return new NioEventLoop(this, executor, (SelectorProvider) args[0],
+                          ((SelectStrategyFactory) args[1]).newSelectStrategy(), (RejectedExecutionHandler) args[2], queueFactory);
+}
+```
+
+NioEventLoopGroup中堆newChild的实现是返回一个NioEventLoop,所以上面的children列表中放入的是一堆的NioEventLoop下面看一下这堆的NioEventLoop具体是做什么的。
+
+<img src="netty%E7%9A%84%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B.assets/image-20200101230436651.png" alt="image-20200101230436651" style="zoom:30%;" />
+
 ### channel(NioServerSocketChannel.class)
 
 ```java
@@ -252,6 +357,14 @@ ServerBootstrapAcceptor被加入到server channel的pipleline之后，当出现r
 3. 使用ServerBootstrapAcceptor的方式，在发成server channel的read的时候(处理和client的连接的时候)，将childHandler等和新简历的channel关联起来。---不是创建的过程中，是一个异步的操作。
 4. 最后将group和server channel关联起来。我们需要一个eventloop能定期的取判断server channel上的事件。
 
+
+
+
+
+## NioEventLoopGroup
+
+上面的代码里
+
 ### group().register(channel)
 
 上面执行initAndRegister的时候，发现有一行代码`config().group().register(channel);`,
@@ -279,4 +392,6 @@ config().group()是从当前的bootsrap中获取到它的group,由上面的代�
 ## 其他资料
 
 [源码讲解](https://segmentfault.com/a/1190000007403873)
+
+[netty的线程模型](https://blog.csdn.net/u010853261/article/details/62043709)
 
