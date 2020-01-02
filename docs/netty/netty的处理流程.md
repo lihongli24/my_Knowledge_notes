@@ -247,7 +247,7 @@ public static Runnable apply(final Runnable command, final EventExecutor eventEx
 2. 每个eventloop执行命令的时候都会使用封装在里面的统一的线程池处理
 3. 每个eventLoop---SingleThreadEventExecutor会维护一个taskQueue,后续应该是会从这里面取任务执行
 
-
+### eventloop是怎么开始运行的
 
 ### channel(NioServerSocketChannel.class)
 
