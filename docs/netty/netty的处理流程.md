@@ -179,7 +179,75 @@ protected EventLoop newChild(Executor executor, Object... args) throws Exception
 
 NioEventLoopGroup中堆newChild的实现是返回一个NioEventLoop,所以上面的children列表中放入的是一堆的NioEventLoop下面看一下这堆的NioEventLoop具体是做什么的。
 
+
+
 <img src="netty%E7%9A%84%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B.assets/image-20200101230436651.png" alt="image-20200101230436651" style="zoom:30%;" />
+
+
+
+NioEventLoop继承了SingleThreadEventExecutor，和Eventloop接口
+
+调用到SingleThreadEventExecutor的构造函数
+
+```java
+SingleThreadEventExecutor:
+
+protected SingleThreadEventExecutor(EventExecutorGroup parent, Executor executor,
+                                    boolean addTaskWakesUp, Queue<Runnable> taskQueue,
+                                    RejectedExecutionHandler rejectedHandler) {
+  super(parent);
+  this.addTaskWakesUp = addTaskWakesUp;
+  this.maxPendingTasks = DEFAULT_MAX_PENDING_EXECUTOR_TASKS;
+  //传入上面生成的ThreadPerTaskExecutor,将他伪装成当前的执行器
+  this.executor = ThreadExecutorMap.apply(executor, this);
+  //线程池的queue
+  this.taskQueue = ObjectUtil.checkNotNull(taskQueue, "taskQueue");
+  //线程池的拒绝策略
+  rejectedExecutionHandler = ObjectUtil.checkNotNull(rejectedHandler, "rejectedHandler");
+}
+
+
+
+ThreadExecutorMap:
+
+public static Executor apply(final Executor executor, final EventExecutor eventExecutor) {
+  ObjectUtil.checkNotNull(executor, "executor");
+  ObjectUtil.checkNotNull(eventExecutor, "eventExecutor");
+  //封装出一个executor，当执行任务的时候全都使用group统一的executor
+  return new Executor() {
+    @Override
+    public void execute(final Runnable command) {
+      executor.execute(apply(command, eventExecutor));
+    }
+  };
+}
+
+
+//对Runnable进行封装，主要是为了执行setCurrentEventExecutor命令
+public static Runnable apply(final Runnable command, final EventExecutor eventExecutor) {
+  ObjectUtil.checkNotNull(command, "command");
+  ObjectUtil.checkNotNull(eventExecutor, "eventExecutor");
+  return new Runnable() {
+    @Override
+    public void run() {
+      setCurrentEventExecutor(eventExecutor);
+      try {
+        command.run();
+      } finally {
+        setCurrentEventExecutor(null);
+      }
+    }
+  };
+}
+```
+
+到这里，我们得到了几点概念
+
+1. eventLoopGroup中公用一个线程池
+2. 每个eventloop执行命令的时候都会使用封装在里面的统一的线程池处理
+3. 每个eventLoop---SingleThreadEventExecutor会维护一个taskQueue,后续应该是会从这里面取任务执行
+
+
 
 ### channel(NioServerSocketChannel.class)
 
