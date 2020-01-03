@@ -247,7 +247,7 @@ public static Runnable apply(final Runnable command, final EventExecutor eventEx
 2. 每个eventloop执行命令的时候都会使用封装在里面的统一的线程池处理
 3. 每个eventLoop---SingleThreadEventExecutor会维护一个taskQueue,后续应该是会从这里面取任务执行
 
-### eventloop是怎么开始运行的
+
 
 ### channel(NioServerSocketChannel.class)
 
@@ -442,6 +442,221 @@ config().group()是从当前的bootsrap中获取到它的group,由上面的代�
 <img src="netty%E7%9A%84%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B.assets/image-20191231230311474.png" alt="image-20191231230311474" style="zoom: 33%;" />
 
 
+
+### eventloop的启动
+
+执行`config().group().register(channel);`的时候，其实就是从当前的group中使用它里面的chooser来获取一个EventLoop来把这个channel注册进去。
+
+```java
+MultithreadEventLoopGroup:
+
+@Override
+public ChannelFuture register(Channel channel) {
+  return next().register(channel);
+}
+
+@Override
+public EventLoop next() {
+  return (EventLoop) super.next();
+}
+
+
+SingleThreadEventLoop:
+
+@Override
+public ChannelFuture register(Channel channel) {
+  return register(new DefaultChannelPromise(channel, this));
+}
+
+@Override
+public ChannelFuture register(final ChannelPromise promise) {
+  ObjectUtil.checkNotNull(promise, "promise");
+  promise.channel().unsafe().register(this, promise);
+  return promise;
+}
+
+AbstractChannel:
+@Override
+public final void register(EventLoop eventLoop, final ChannelPromise promise) {
+
+  //相关的一些检测
+  ...
+
+  AbstractChannel.this.eventLoop = eventLoop;
+
+  //如果当前线程和eventLoop中的线程一致，直接同步执行
+  //第一次运行的时候，因为eventLoop还没有和thread关联，所以肯定是false
+  if (eventLoop.inEventLoop()) {
+    register0(promise);
+  } else {
+    try {
+      //使用eventLoop的execute线程池的方式去执行这个register0方法
+      eventLoop.execute(new Runnable() {
+        @Override
+        public void run() {
+          register0(promise);
+        }
+      });
+    } catch (Throwable t) {
+      //异常情况的处理
+      ...
+    }
+  }
+}
+
+SingleThreadEventExecutor:
+@Override
+public void execute(Runnable task) {
+  if (task == null) {
+    throw new NullPointerException("task");
+  }
+
+  //和上面一致，判断eventLoop中保存的是不是当前线程
+  boolean inEventLoop = inEventLoop();
+  //把任务添加到eventLoop的taskQueue中
+  addTask(task);
+  //thread和eventLoop中的不一致，说明是第一次启动，调用statThread()方法，和线程关联并启动它
+  if (!inEventLoop) {
+    startThread();
+    //入股是关闭状态了，把刚刚加进去的任务移出，并且进行reject操作。
+    if (isShutdown()) {
+      boolean reject = false;
+      try {
+        if (removeTask(task)) {
+          reject = true;
+        }
+      } catch (UnsupportedOperationException e) {
+        // The task queue does not support removal so the best thing we can do is to just move on and
+        // hope we will be able to pick-up the task before its completely terminated.
+        // In worst case we will log on termination.
+      }
+      if (reject) {
+        reject();
+      }
+    }
+  }
+
+  //这两行还没看懂啥意思
+  if (!addTaskWakesUp && wakesUpForTask(task)) {
+    wakeup(inEventLoop);
+  }
+}
+
+
+
+
+private void doStartThread() {
+  assert thread == null;
+  executor.execute(new Runnable() {
+    @Override
+    public void run() {
+      //首先将eventLoop中的thread和当前请求的thread关联上
+      //后续的inEventLoop()方法就会return true了
+      thread = Thread.currentThread();
+      if (interrupted) {
+        thread.interrupt();
+      }
+
+      boolean success = false;
+      updateLastExecutionTime();
+      try {
+        //因为已经在异步代码块里面了，所以直接同步调用run,也就是我们的NioEventLoop的run方法
+        //
+        SingleThreadEventExecutor.this.run();
+        success = true;
+      } catch (Throwable t) {
+        logger.warn("Unexpected exception from an event executor: ", t);
+      } finally {
+        //其他代码
+        ...
+      }
+        
+  });
+}
+
+
+```
+
+> SingleThreadEventExecutor.this.run(); 至于为什么用了类名.this这种方式，查了下网上有两种这么用的场景
+>
+> 1. 当在一个类的内部类中，如果需要访问外部类的方法或者成员域的时候，如果使用 this.成员域(与 内部类.this.成员域 没有分别) 调用的显然是内部类的域 ， 如果我们想要访问外部类的域的时候，就要必须使用 外部类.this.成员域
+> 2. 还有一个使用情况，那就是在是使用意图更加的清楚，在Android开发中我们经常要在一些地方使用 Context 类型的参数， 而这个参数我们往往使用this
+>
+> 感觉这里可能就是第二种情况，具体还没参透，如果后续有什么想法再来修改
+>
+> 
+
+
+
+**到这里我们的eventLoop已经运行起来了**
+
+```java
+@Override
+protected void run() {
+  for (;;) {
+    try {
+      try {
+        switch (selectStrategy.calculateStrategy(selectNowSupplier, hasTasks())) {
+          case SelectStrategy.CONTINUE:
+            continue;
+
+          case SelectStrategy.BUSY_WAIT:
+            // fall-through to SELECT since the busy-wait is not supported with NIO
+
+          case SelectStrategy.SELECT:
+            select(wakenUp.getAndSet(false));
+            if (wakenUp.get()) {
+              selector.wakeup();
+            }
+            // fall through
+          default:
+        }
+      } catch (IOException e) {
+        // If we receive an IOException here its because the Selector is messed up. Let's rebuild
+        // the selector and retry. https://github.com/netty/netty/issues/8566
+        rebuildSelector0();
+        handleLoopException(e);
+        continue;
+      }
+
+      cancelledKeys = 0;
+      needsToSelectAgain = false;
+      final int ioRatio = this.ioRatio;
+      if (ioRatio == 100) {
+        try {
+          processSelectedKeys();
+        } finally {
+          // Ensure we always run tasks.
+          runAllTasks();
+        }
+      } else {
+        final long ioStartTime = System.nanoTime();
+        try {
+          processSelectedKeys();
+        } finally {
+          // Ensure we always run tasks.
+          final long ioTime = System.nanoTime() - ioStartTime;
+          runAllTasks(ioTime * (100 - ioRatio) / ioRatio);
+        }
+      }
+    } catch (Throwable t) {
+      handleLoopException(t);
+    }
+    // Always handle shutdown even if the loop processing threw an exception.
+    try {
+      if (isShuttingDown()) {
+        closeAll();
+        if (confirmShutdown()) {
+          return;
+        }
+      }
+    } catch (Throwable t) {
+      handleLoopException(t);
+    }
+  }
+}
+
+```
 
 
 
