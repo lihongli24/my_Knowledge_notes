@@ -599,3 +599,23 @@ Using where的作用只是提醒我们MySQL将用where子句来过滤结果集
 
 5. NULL值在timestamp类型下容易出问题，特别是没有启用参数explicit_defaults_for_timestamp
 6. **NOT IN、!= 等负向条件查询在有 NULL 值的情况下返回永远为空结果，查询容易出错**
+
+### innoDB在使用分页查询的时候当offerset比较大的时候的问题
+
+因为InnoDB在非聚簇索引上保存的是主键，所以当使用的不是主键的key的字段进行offset查询的时候经历的步骤如下：
+
+> select * from member where gender=1 limit 300000,1;
+
+```
+因为数据表是InnoDB，根据InnoDB索引的结构，查询过程为：
+```
+
+- 通过二级索引查到主键值（找出所有gender=1的id)。
+
+- 再根据查到的主键值通过主键索引找到相应的数据块（根据id找出对应的数据块内容）。
+
+- 根据offset的值，查询300001次主键索引的数据，最后将之前的300000条丢弃，取出最后1条。
+
+  所以，mysql查询时，offset过大影响性能的原因是多次通过主键索引访问数据块的I/O操作。
+
+Myisam引擎非主键的索引也是指向的数据块，所以他不存在这个问题。
