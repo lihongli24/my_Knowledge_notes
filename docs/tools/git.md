@@ -28,6 +28,8 @@ Your public key has been saved in tencent.pub.
 
 上面的tencent是为了方便区分git平台所设置的密钥对名称，tencent对应腾讯开发者平台
 
+试了下，貌似不能修改路径，不知道是不是姿势不对
+
 执行完成之后得到
 
 ```shell
