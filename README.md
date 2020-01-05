@@ -1,5 +1,7 @@
+
 #SimpleJavaTest
 记录一些日常使用到的简单的java方法
+
 ### 20191024
 * LRU的java实现方式
 
@@ -38,6 +40,3 @@ docs/config-files/vimrc，将他放到~目录下，修改文件名为.vimrc
 一天一算法
 
 文件夹：/docs/algorithm
-
-
-
