@@ -1,0 +1,1 @@
+[gossip协议介绍](https://www.jianshu.com/p/8279d6fd65bb)
