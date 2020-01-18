@@ -333,3 +333,15 @@ private void siftDownUsingComparator(int k, E x) {
 >       break;
 >
 > 不知道什么情况下会出现这种情况
+
+
+
+
+
+## 总结：
+
+知识点：
+
+1. 数据结构：堆
+2. AQS：lock+condition
+3. 感觉只能保证延迟，不能保证准时
