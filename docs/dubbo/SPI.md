@@ -224,7 +224,7 @@ private void loadResource(Map<String, Class<?>> extensionClasses, ClassLoader cl
               line = line.substring(i + 1).trim();
             }
             if (line.length() > 0 && !isExcluded(line, excludedPackages)) {
-              //真正去执行加载类
+              //真正去执行加载类,使用Class.forName的方式加载类 Class.forName(line, true, classLoader), name
               loadClass(extensionClasses, resourceURL, Class.forName(line, true, classLoader), name);
             }
           } catch (Throwable t) {
@@ -250,11 +250,14 @@ private void loadClass(Map<String, Class<?>> extensionClasses, java.net.URL reso
                                     + clazz.getName() + " is not subtype of interface.");
   }
   
+  //如果当前类是一个带有@Adaptive注解的类， 使用cachedAdaptiveClass指向它
   if (clazz.isAnnotationPresent(Adaptive.class)) {
     cacheAdaptiveClass(clazz);
+    //如果这个类是一个封装类，构造函数中用type指定的类型，放入缓存set cachedWrapperClasses中
   } else if (isWrapperClass(clazz)) {
     cacheWrapperClass(clazz);
   } else {
+    //对@Extension注解的情况做判断，放入cachedActivates
     clazz.getConstructor();
     if (StringUtils.isEmpty(name)) {
       name = findAnnotationName(clazz);
@@ -275,11 +278,30 @@ private void loadClass(Map<String, Class<?>> extensionClasses, java.net.URL reso
 }
 ```
 
+到这里我们已经载入了对应的类，`getAdaptiveExtensionClass`方法已经执行完成了，它返回的是一个class对象。
 
-
+回到我们的最上面的代码
 
 ```java
-//加载指定的类
+private Class<?> getAdaptiveExtensionClass() {
+  //从资源里面加载类，----------已完成
+  getExtensionClasses();
+  //判断缓存cachedAdaptiveClass是否已经被设置了，按照上面的代码，只有类上注释了@dAdaptive的才会被设置
+  if (cachedAdaptiveClass != null) {
+    return cachedAdaptiveClass;
+  }
+  //对那些方法上写了@dAdaptive的类进行dubbo的动态生成适配器操作
+  return cachedAdaptiveClass = createAdaptiveExtensionClass();
+}
+```
+
+到这里总结下：
+
+1. 类上注释了@Adaptive的属于用户自己实现的适配器
+2. 方法上加了@Adaptive注解的，需要dubbo动态生成适配器
+
+```java
+//使用dubbo的方式动态生成适配器
 private Class<?> createAdaptiveExtensionClass() {
   String code = new AdaptiveClassCodeGenerator(type, cachedDefaultName).generate();
   ClassLoader classLoader = findClassLoader();
@@ -287,6 +309,122 @@ private Class<?> createAdaptiveExtensionClass() {
   return compiler.compile(code, classLoader);
 }
 ```
+
+这种动态生成适配器的方式，下面举个例子：
+
+```java
+@SPI(FailoverCluster.NAME)
+public interface Cluster {
+
+    /**
+     * Merge the directory invokers to a virtual invoker.
+     *
+     * @param <T>
+     * @param directory
+     * @return cluster invoker
+     * @throws RpcException
+     */
+    @Adaptive
+    <T> Invoker<T> join(Directory<T> directory) throws RpcException;
+}
+```
+
+生成的动态适配器为
+
+```java
+package com.alibaba.dubbo.rpc.cluster;
+import com.alibaba.dubbo.common.extension.ExtensionLoader;
+public class Cluster$Adpative implements com.alibaba.dubbo.rpc.cluster.Cluster {
+|   public com.alibaba.dubbo.rpc.Invoker join(com.alibaba.dubbo.rpc.cluster.Directory arg0) throws com.alibaba.dubbo.rpc.RpcException {
+|   |   if (arg0 == null) throw new IllegalArgumentException("com.alibaba.dubbo.rpc.cluster.Directory argument == null");
+|   |   if (arg0.getUrl() == null) throw new IllegalArgumentException("com.alibaba.dubbo.rpc.cluster.Directory argument getUrl() == null");
+|   |   com.alibaba.dubbo.common.URL url = arg0.getUrl();
+|   |   String extName = url.getParameter("cluster", "failover");
+|   |   if(extName == null) throw new IllegalStateException("Fail to get extension(com.alibaba.dubbo.rpc.cluster.Cluster) name from url(" + url.toString() + ") use keys([cluster])");
+|   |   com.alibaba.dubbo.rpc.cluster.Cluster extension = (com.alibaba.dubbo.rpc.cluster.Cluster)ExtensionLoader.getExtensionLoader(com.alibaba.dubbo.rpc.cluster.Cluster.class).getExtension(extName);
+|   |   return extension.join(arg0);
+|   }
+ }
+```
+
+
+
+
+
+后续会被调用它的构造函数，创建实例` getAdaptiveExtensionClass().newInstance()`
+
+```java
+//创建适配器
+private T createAdaptiveExtension() {
+  try {
+    return injectExtension((T) getAdaptiveExtensionClass().newInstance());
+  } catch (Exception e) {
+    throw new IllegalStateException("Can't create adaptive extension " + type + ", cause: " + e.getMessage(), e);
+  }
+}
+```
+
+下面执行`injectExtension`，这个方法在看spring源码的时候有遇到过，就是对内部的属性设置。
+
+```java
+//给对象内的属性设值
+private T injectExtension(T instance) {
+  if (objectFactory == null) {
+    return instance;
+  }
+
+  try {
+    //遍历方法
+    for (Method method : instance.getClass().getMethods()) {
+      //不是set方法忽略，所以在自己实现dubbo的spi类的时候，如果想注入对象，需要实现它的set方法，比如filter
+      if (!isSetter(method)) {
+        continue;
+      }
+     //忽略不需要注入的
+      if (method.getAnnotation(DisableInject.class) != null) {
+        continue;
+      }
+      Class<?> pt = method.getParameterTypes()[0];
+      //如果属性是原语的，忽略
+      if (ReflectUtils.isPrimitives(pt)) {
+        continue;
+      }
+
+      try {
+        //获取属性值，使用set方法设置进去
+        String property = getSetterProperty(method);
+        Object object = objectFactory.getExtension(pt, property);
+        if (object != null) {
+          method.invoke(instance, object);
+        }
+      } catch (Exception e) {
+        logger.error("Failed to inject via method " + method.getName()
+                     + " of interface " + type.getName() + ": " + e.getMessage(), e);
+      }
+
+    }
+  } catch (Exception e) {
+    logger.error(e.getMessage(), e);
+  }
+  return instance;
+}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
