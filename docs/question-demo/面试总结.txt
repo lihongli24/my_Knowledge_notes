@@ -1,29 +1,29 @@
-1.¼¯ºÏ  set  list  hashmap  ¶ÓÁÐÒÔ¼°¶ÔÓ¦µÄÏß³Ì°²È«¼¯ºÏ£¨copyonwriteArraylist   concurrenthashmapµÈ£© 
-	Àí½â¸÷¸ö¼¯ºÏµÄÌØµãÒÔ¼°Çø±ð£¬ÁË½âÔ´Âë   ½â¾öhash³åÍ»   ÎªÊ²Ã´ÖØÐ´equalsÒªÖØÐ´hashcode·½·¨
-2.Ïß³Ì   ÊµÏÖÏß³ÌµÄ¼¸ÖÖ·½Ê½£¨thread  runnable  callable£©  Ïß³ÌÍ¬²½ Í¨ÐÅ Ïß³ÌËø£¨synchronized Lock£© countdownlatch cyclicbarrier   semaphore volatileµÈ¹Ø¼ü×ÖµÄÓÃ·¨
-	Éú²úÕßÏû·ÑÕßÄ£ÐÍ   wait/notify   condition.await/singal      sleepºÍwaitµÄÇø±ð      (³£ÎÊÔõÃ´ÈÃÁ½¸öÏß³ÌÖ´ÐÐÍêÁËÔÙ¼ÌÐøÖ´ÐÐ£¨countdownlatch cyclicbarrier£©)
+1.ï¿½ï¿½ï¿½ï¿½  set  list  hashmap  ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ß³Ì°ï¿½È«ï¿½ï¿½ï¿½Ï£ï¿½copyonwriteArraylist   concurrenthashmapï¿½È£ï¿½ 
+	ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½Øµï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë½ï¿½Ô´ï¿½ï¿½   ï¿½ï¿½ï¿½hashï¿½ï¿½Í»   ÎªÊ²Ã´ï¿½ï¿½Ð´equalsÒªï¿½ï¿½Ð´hashcodeï¿½ï¿½ï¿½ï¿½
+2.ï¿½ß³ï¿½   Êµï¿½ï¿½ï¿½ß³ÌµÄ¼ï¿½ï¿½Ö·ï¿½Ê½ï¿½ï¿½thread  runnable  callableï¿½ï¿½  ï¿½ß³ï¿½Í¬ï¿½ï¿½ Í¨ï¿½ï¿½ ï¿½ß³ï¿½ï¿½ï¿½ï¿½ï¿½synchronized Lockï¿½ï¿½ countdownlatch cyclicbarrier   semaphore volatileï¿½È¹Ø¼ï¿½ï¿½Öµï¿½ï¿½Ã·ï¿½
+	ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½   wait/notify   condition.await/singal      sleepï¿½ï¿½waitï¿½ï¿½ï¿½ï¿½ï¿½ï¿½      (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß³ï¿½Ö´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¼ï¿½ï¿½ï¿½Ö´ï¿½Ð£ï¿½countdownlatch cyclicbarrierï¿½ï¿½)
 	threadLocal 
-3.IO  ×Ö·ûÁ÷ ×Ö½ÚÁ÷   ×èÈû/·Ç×èÈû   Í¬²½/Òì²½ NIOÔ­Àí
-4.ÍøÂç±à³Ì£¨±ÊÊÔ³£¿¼ ÃæÊÔ¼¸ºõ²»»áÎÊµ½£©  Èý´ÎÎÕÊÖ/ËÄ´Î»ÓÊÖ  
-5.JVM  ÄÚ´æÄ£ÐÍ  GCËã·¨  ÐÂÉú´úÀÏÄê´ú¾ßÌåÊ¹ÓÃÄÄÖÖËã·¨   ¸÷ÖÖÄÚ´æÒç³öÒÔ¼°Ã¿ÖÖÒì³£µÄ½â¾ö·½·¨   ¾ßÌåÏîÄ¿ÖÐÓöµ½ÄÄÐ©ÄÚ´æÒç³öÎÊÌâ  ÒÔ¼°JVMµ÷ÓÅµÈ fullGC´¥·¢Ìõ¼þ Àà¼ÓÔØ»úÖÆ Ë«Ç×Î¯ÅÉ»úÖÆ
-6.SpringMVCÔ­Àí
-7.HTTPÐ­Òé  get/post/put  http»º´æ
-8.JSP ServletÇø±ð   ServletÉúÃüÖÜÆÚ ServletÊÇ·ñÏß³Ì°²È«  ÎªÊ²Ã´²»°²È« Èç¹û²»°²È«ÔõÃ´²ÅÄÜ°²È«  
-9.Mybatis/hibernate   ¶þ¼¶»º´æ  mybatis sqlÖÐ´«²Î# $µÄÇø±ð hibernateÖÐ¶ÔÏóµÄ¼¸ÖÖ×´Ì¬
-10.Spring   IOCºÍAOPÔ­Àí  ÊÂÎñ¸ôÀë¼¶±ð ÊÂÎñ´«²¥·½Ê½
-11ËµËµ³£ÓÃµÄÉè¼ÆÄ£Ê½
-12³£ÓÃÊý¾Ý¿â  Êý¾Ý¿âÉè¼ÆÔ­Ôò sqlÓÅ»¯·½Ê½ÓÐÄÄÐ©  Ë÷Òý Ëø  ³£¿¼Í³¼Æ²éÑ¯sql£¨±ÊÊÔ£©    1ÒÚÌõÊý¾Ý²éÑ¯9000 0000 ¿ªÊ¼ºóÃæµÄ10ÌõÊý¾ÝµÄsql£¨limitÓÅ»¯£©
-	·Ö¿â·Ö±í ÀÖ¹ÛËø±¯¹ÛËø mysql¸÷¸öÒýÇæµÄÌØµã
-13 »º´æ Èçredis memcache¶Ô±È    redisÊý¾ÝÀàÐÍ  Ö÷´Ó  ³Ö¾Ã»¯   Ö÷´ÓÖ®¼äÔõÃ´±£³ÖÊý¾ÝÒ»ÖÂ
-14¼¯Èº·Ö²¼Ê½ÏûÏ¢ÖÐ¼ä¼þ  ·Ö²¼Ê½Êý¾ÝÒ»ÖÂÐÔ   mysqlÖ÷´ÓÔõÃ´±£³ÖÊý¾ÝÒ»ÖÂ   ¸ºÔØ¾ùºâËã·¨  Î¢·þÎñ  ¸÷¸ö·þÎñÖ®¼äÍ¨ÐÅ¿ò¼Ü£¨Èçdubbo£©
-	 ½Ó¿ÚÍ¨ÐÅ°²È« ·Ö²¼Ê½»·¾³ÏÂsession¹ÜÀí·½Ê½ 	nginx¸ºÔØ¾ùºâËã·¨
-15¸ß²¢·¢Á¿¡¢´óÊý¾ÝÁ¿µÄ½â¾ö·½Ê½
-16³£ÓÃËã·¨   ×Ö·û´®Ïà¹Ø  ²éÕÒ£¨¶þ·Ö²éÕÒ£© ÅÅÐò£¨Ã°ÅÝ¡¢¿ìÅÅ£©  
-17¾²Ì¬±äÁ¿ÄÚ´æÎ»ÖÃ£¬equalsÖØÐ´Òª¶îÍâ×¢ÒâÊ²Ã´£¬stringºÍinteger³£Á¿³Ø£¬springÖÐbean³õÊ¼»¯£¬Ò»ÖÂÐÔ¹þÏ£
-18activemq¡¢C3p0
-19Êý¾Ý¿âÓÅ»¯¡¢Êý¾Ý¿âÊÂÎñµÄ¼¸¸öÌØÐÔ¡¢redo undoÈÕÖ¾¡¢kafka»ù±¾Ô­Àí¡¢ÈçºÎÊµÏÖµÄË®Æ½À©Õ¹£¬JAVAÉè¼ÆÄ£Ê½£¨ÔðÈÎÁ´¡¢ÒÀÀµµ¹ÖÃÔ­Ôò£©¡¢´óÊý¾ÝTOP NËã·¨£¬JAVA classloaderÎ¯ÍÐ»úÖÆÒÔ¼°ÈÈ²¿ÊðµÄÊµÏÖÔ­Àí
-20 nettyÔ­Àí£¬ÃÝµÈÐÔÉè¼Æ£¬²¢·¢±à³Ì£¬ÏµÍ³µÄÉè¼Æ£¬ÎÊÌâºÍ¸Ä½ø
-21ÎÊÁËÒ»Ð©±ÈÈçËûÃÇ»áÓöµ½µÄºÍµÚÈý·½¡¢ÒøÐÐ½»»¥µÄÎÊÌâ£¬Å×³öÎÊÌâ£¬¿´Èç¹ûÄãÅöµ½»áÔõÃ´½â¾ö
-22¡¢¶àÏß³Ì·½Ãæ£¬Ò»Ð©Òì³£ºÍspringµÄInitializingBean£¬spring¿¼²ìµÄÓÐbeanµÄ³õÊ¼»¯
-23¡¢Ïß³Ì³Ø´´½¨
- 24¡¢HashmapÔ­Àí
+3.IO  ï¿½Ö·ï¿½ï¿½ï¿½ ï¿½Ö½ï¿½ï¿½ï¿½   ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½   Í¬ï¿½ï¿½/ï¿½ì²½ NIOÔ­ï¿½ï¿½
+4.ï¿½ï¿½ï¿½ï¿½ï¿½Ì£ï¿½ï¿½ï¿½ï¿½Ô³ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½/ï¿½Ä´Î»ï¿½ï¿½ï¿½  
+5.JVM  ï¿½Ú´ï¿½Ä£ï¿½ï¿½  GCï¿½ã·¨  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ã·¨   ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½Ã¿ï¿½ï¿½ï¿½ì³£ï¿½Ä½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½   ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð©ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  ï¿½Ô¼ï¿½JVMï¿½ï¿½ï¿½Åµï¿½ fullGCï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ø»ï¿½ï¿½ï¿½ Ë«ï¿½ï¿½Î¯ï¿½É»ï¿½ï¿½ï¿½
+6.SpringMVCÔ­ï¿½ï¿½
+7.HTTPÐ­ï¿½ï¿½  get/post/put  httpï¿½ï¿½ï¿½ï¿½
+8.JSP Servletï¿½ï¿½ï¿½ï¿½   Servletï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Servletï¿½Ç·ï¿½ï¿½ß³Ì°ï¿½È«  ÎªÊ²Ã´ï¿½ï¿½ï¿½ï¿½È« ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½Ã´ï¿½ï¿½ï¿½Ü°ï¿½È«  
+9.Mybatis/hibernate   ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  mybatis sqlï¿½Ð´ï¿½ï¿½ï¿½# $ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ hibernateï¿½Ð¶ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½×´Ì¬
+10.Spring   IOCï¿½ï¿½AOPÔ­ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ë¼¶ï¿½ï¿½ ï¿½ï¿½ï¿½ñ´«²ï¿½ï¿½ï¿½Ê½
+11ËµËµï¿½ï¿½ï¿½Ãµï¿½ï¿½ï¿½ï¿½Ä£Ê½
+12ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½  ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½ï¿½ï¿½Ô­ï¿½ï¿½ sqlï¿½Å»ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½Ð©  ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½Í³ï¿½Æ²ï¿½Ñ¯sqlï¿½ï¿½ï¿½ï¿½ï¿½Ô£ï¿½    1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý²ï¿½Ñ¯9000 0000 ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½10ï¿½ï¿½ï¿½ï¿½ï¿½Ýµï¿½sqlï¿½ï¿½limitï¿½Å»ï¿½ï¿½ï¿½
+	ï¿½Ö¿ï¿½Ö±ï¿½ ï¿½Ö¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ mysqlï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½
+13 ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½redis memcacheï¿½Ô±ï¿½    redisï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½  ï¿½Ö¾Ã»ï¿½   ï¿½ï¿½ï¿½ï¿½Ö®ï¿½ï¿½ï¿½ï¿½Ã´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½
+14ï¿½ï¿½Èºï¿½Ö²ï¿½Ê½ï¿½ï¿½Ï¢ï¿½Ð¼ï¿½ï¿½  ï¿½Ö²ï¿½Ê½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½   mysqlï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½   ï¿½ï¿½ï¿½Ø¾ï¿½ï¿½ï¿½ï¿½ã·¨  Î¢ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö®ï¿½ï¿½Í¨ï¿½Å¿ï¿½Ü£ï¿½ï¿½ï¿½dubbotestï¿½ï¿½
+	 ï¿½Ó¿ï¿½Í¨ï¿½Å°ï¿½È« ï¿½Ö²ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½sessionï¿½ï¿½ï¿½ï¿½Ê½ 	nginxï¿½ï¿½ï¿½Ø¾ï¿½ï¿½ï¿½ï¿½ã·¨
+15ï¿½ß²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä½ï¿½ï¿½ï¿½ï¿½Ê½
+16ï¿½ï¿½ï¿½ï¿½ï¿½ã·¨   ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½Ò£ï¿½ï¿½ï¿½ï¿½Ö²ï¿½ï¿½Ò£ï¿½ ï¿½ï¿½ï¿½ï¿½Ã°ï¿½Ý¡ï¿½ï¿½ï¿½ï¿½Å£ï¿½  
+17ï¿½ï¿½Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½Î»ï¿½Ã£ï¿½equalsï¿½ï¿½Ð´Òªï¿½ï¿½ï¿½ï¿½×¢ï¿½ï¿½Ê²Ã´ï¿½ï¿½stringï¿½ï¿½integerï¿½ï¿½ï¿½ï¿½ï¿½Ø£ï¿½springï¿½ï¿½beanï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ô¹ï¿½Ï£
+18activemqï¿½ï¿½C3p0
+19ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½Å»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¡ï¿½redo undoï¿½ï¿½Ö¾ï¿½ï¿½kafkaï¿½ï¿½ï¿½ï¿½Ô­ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½Öµï¿½Ë®Æ½ï¿½ï¿½Õ¹ï¿½ï¿½JAVAï¿½ï¿½ï¿½Ä£Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô­ï¿½ò£©¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½TOP Nï¿½ã·¨ï¿½ï¿½JAVA classloaderÎ¯ï¿½Ð»ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ï¿½È²ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½Ô­ï¿½ï¿½
+20 nettyÔ­ï¿½ï¿½ï¿½Ýµï¿½ï¿½ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì£ï¿½ÏµÍ³ï¿½ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ï¿½Í¸Ä½ï¿½
+21ï¿½ï¿½ï¿½ï¿½Ò»Ð©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÄºÍµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½â£¬ï¿½×³ï¿½ï¿½ï¿½ï¿½â£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã´ï¿½ï¿½ï¿½
+22ï¿½ï¿½ï¿½ï¿½ï¿½ß³Ì·ï¿½ï¿½æ£¬Ò»Ð©ï¿½ì³£ï¿½ï¿½springï¿½ï¿½InitializingBeanï¿½ï¿½springï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½beanï¿½Ä³ï¿½Ê¼ï¿½ï¿½
+23ï¿½ï¿½ï¿½ß³Ì³Ø´ï¿½ï¿½ï¿½
+ 24ï¿½ï¿½HashmapÔ­ï¿½ï¿½

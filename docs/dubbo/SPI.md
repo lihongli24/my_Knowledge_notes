@@ -1,12 +1,22 @@
 # SPI
 
+
+
+[toc]
+
 文件：ExtensionLoader
 
-路径：org.apache.dubbo.common.extension
+路径：org.apache.dubbotest.common.extension
 
 作用：使用SPI来实现接口的定义和实现的解耦，做到面向接口编程
 
-使用实例：org.apache.dubbo.remoting.transport.dispatcher.ChannelHandlers
+
+
+
+
+## AdaptiveExtension
+
+使用实例：org.apache.dubbotest.remoting.transport.dispatcher.ChannelHandlers
 
 ```java
 protected ChannelHandler wrapInternal(ChannelHandler handler, URL url) {
@@ -24,6 +34,10 @@ protected ChannelHandler wrapInternal(ChannelHandler handler, URL url) {
 最后异步.dispatch方法就是在调用Dispatcher的方法了
 
 
+
+
+
+### 获取一个ExtensionLoader
 
 ```java
  
@@ -65,6 +79,10 @@ private ExtensionLoader(Class<?> type) {
 ```
 
 上面的方法不管是加载Dispatcher还是ExtensionFactory，最后都调用了getAdaptiveExtension方法获取到对应的实现类
+
+
+
+### getAdaptiveExtension
 
 ```java
 ExtensionLoader：
@@ -118,8 +136,10 @@ private Class<?> getAdaptiveExtensionClass() {
 }
 ```
 
+### 从配置中加载拓展类
 
-## getExtensionClasses 加载配置的类
+>  调用时我们只传入了接口，但是这个接口可能会有多个拓展实现类，那么我们可以根据配置文件配置我们运行过程中需要加载的实现类
+
 ```java
 ExtensionLoader： 
   
@@ -155,11 +175,11 @@ private Map<String, Class<?>> loadExtensionClasses() {
 上面的代码里面涉及到了一个策略strategy类，目前会从下面的三个目录中加载类
 ```java
 private static final String SERVICES_DIRECTORY = "META-INF/services/";
-private static final String DUBBO_DIRECTORY = "META-INF/dubbo/";
+private static final String DUBBO_DIRECTORY = "META-INF/dubbotest/";
 private static final String DUBBO_INTERNAL_DIRECTORY = DUBBO_DIRECTORY + "internal/";
 ```
 
-### loadFile
+#### loadFile
 
 ```java
 ExtensionLoader:
@@ -242,6 +262,7 @@ private void loadResource(Map<String, Class<?>> extensionClasses, ClassLoader cl
 
 
 
+//加载类，将加载后的类放入缓存中。
 private void loadClass(Map<String, Class<?>> extensionClasses, java.net.URL resourceURL, Class<?> clazz, String name) throws NoSuchMethodException {
   //判断类型是否匹配
   if (!type.isAssignableFrom(clazz)) {
@@ -280,6 +301,10 @@ private void loadClass(Map<String, Class<?>> extensionClasses, java.net.URL reso
 
 到这里我们已经载入了对应的类，`getAdaptiveExtensionClass`方法已经执行完成了，它返回的是一个class对象。
 
+
+
+### 生成适配器Adapt
+
 回到我们的最上面的代码
 
 ```java
@@ -305,47 +330,41 @@ private Class<?> getAdaptiveExtensionClass() {
 private Class<?> createAdaptiveExtensionClass() {
   String code = new AdaptiveClassCodeGenerator(type, cachedDefaultName).generate();
   ClassLoader classLoader = findClassLoader();
-  org.apache.dubbo.common.compiler.Compiler compiler = ExtensionLoader.getExtensionLoader(org.apache.dubbo.common.compiler.Compiler.class).getAdaptiveExtension();
+  org.apache.dubbotest.common.compiler.Compiler compiler = ExtensionLoader.getExtensionLoader(org.apache.dubbotest.common.compiler.Compiler.class).getAdaptiveExtension();
   return compiler.compile(code, classLoader);
 }
 ```
 
-这种动态生成适配器的方式，下面举个例子：
+这种动态生成适配器的方式，下面举个例子：文件路径见：`src/main/java/dubbotest`
 
 ```java
-@SPI(FailoverCluster.NAME)
-public interface Cluster {
-
-    /**
-     * Merge the directory invokers to a virtual invoker.
-     *
-     * @param <T>
-     * @param directory
-     * @return cluster invoker
-     * @throws RpcException
-     */
+@SPI("dubbo")
+public interface AdaptiveExt2 {
     @Adaptive
-    <T> Invoker<T> join(Directory<T> directory) throws RpcException;
+    String echo(String msg, URL url);
 }
 ```
 
 生成的动态适配器为
 
 ```java
-package com.alibaba.dubbo.rpc.cluster;
+package dubbotest;
 import com.alibaba.dubbo.common.extension.ExtensionLoader;
-public class Cluster$Adpative implements com.alibaba.dubbo.rpc.cluster.Cluster {
-|   public com.alibaba.dubbo.rpc.Invoker join(com.alibaba.dubbo.rpc.cluster.Directory arg0) throws com.alibaba.dubbo.rpc.RpcException {
-|   |   if (arg0 == null) throw new IllegalArgumentException("com.alibaba.dubbo.rpc.cluster.Directory argument == null");
-|   |   if (arg0.getUrl() == null) throw new IllegalArgumentException("com.alibaba.dubbo.rpc.cluster.Directory argument getUrl() == null");
-|   |   com.alibaba.dubbo.common.URL url = arg0.getUrl();
-|   |   String extName = url.getParameter("cluster", "failover");
-|   |   if(extName == null) throw new IllegalStateException("Fail to get extension(com.alibaba.dubbo.rpc.cluster.Cluster) name from url(" + url.toString() + ") use keys([cluster])");
-|   |   com.alibaba.dubbo.rpc.cluster.Cluster extension = (com.alibaba.dubbo.rpc.cluster.Cluster)ExtensionLoader.getExtensionLoader(com.alibaba.dubbo.rpc.cluster.Cluster.class).getExtension(extName);
-|   |   return extension.join(arg0);
-|   }
- }
+public class AdaptiveExt2$Adpative implements dubbotest.AdaptiveExt2 {
+	public java.lang.String echo(java.lang.String arg0, com.alibaba.dubbo.common.URL arg1) {
+		if (arg1 == null) throw new IllegalArgumentException("url == null");
+		com.alibaba.dubbo.common.URL url = arg1;
+		String extName = url.getParameter("adaptive.ext2", "dubbo");
+		if(extName == null) throw new IllegalStateException("Fail to get extension(dubbotest.AdaptiveExt2) name from url(" + url.toString() + ") use keys([adaptive.ext2])");
+		dubbotest.AdaptiveExt2 extension = (dubbotest.AdaptiveExt2)ExtensionLoader.getExtensionLoader(dubbotest.AdaptiveExt2.class).getExtension(extName);
+		return extension.echo(arg0, arg1);
+	}
+}
 ```
+
+
+
+到这里dubbo为我们创建了一个动态的适配器，真正使用的时候到这个AdaptiveExt2的时候，会使用getExtension方法从加载过的类中获取
 
 
 
@@ -411,6 +430,147 @@ private T injectExtension(T instance) {
 
 ```
 
+### 使用时获取拓展：getExtesion
+
+>  上面说到了返回的是一个Adapt,一个适配器，所以使用的时候应该是使用dubbo为我们生成的这个适配器获取一个真正的实现类，然后调用它的对应方法。
+
+>  在上面加载拓展类的时候,我们会把配置文件里面写了的所有实现类都加载一遍。那么使用的时候到底使用的哪个呢？ 
+
+
+
+```java
+ExtensionLoader:
+
+public T getExtension(String name) {
+  //异常情况判断
+  if (StringUtils.isEmpty(name)) {
+    throw new IllegalArgumentException("Extension name == null");
+  }
+  if ("true".equals(name)) {
+    return getDefaultExtension();
+  }
+  //不知道这个holder的用意是什么，之后看的时候如果了解了可以补全
+  final Holder<Object> holder = getOrCreateHolder(name);
+  Object instance = holder.get();
+  if (instance == null) {
+    synchronized (holder) {
+      instance = holder.get();
+      if (instance == null) {
+        //到这里，如果之前没有加载过，需要重新加载类
+        instance = createExtension(name);
+        holder.set(instance);
+      }
+    }
+  }
+  return (T) instance;
+}
+
+
+
+private T createExtension(String name) {
+  //调用了上面讲到过的，getExtensionClasses，返回Map<String, Class<?>>，使用key获取需要的
+  Class<?> clazz = getExtensionClasses().get(name);
+  if (clazz == null) {
+    throw findException(name);
+  }
+  try {
+    //往缓存里面设值
+    T instance = (T) EXTENSION_INSTANCES.get(clazz);
+    if (instance == null) {
+      EXTENSION_INSTANCES.putIfAbsent(clazz, clazz.newInstance());
+      instance = (T) EXTENSION_INSTANCES.get(clazz);
+    }
+    //设置属性
+    injectExtension(instance);
+    Set<Class<?>> wrapperClasses = cachedWrapperClasses;
+    if (wrapperClasses != null && !wrapperClasses.isEmpty()) {
+      for (Class<?> wrapperClass : wrapperClasses) {
+        instance = injectExtension((T) wrapperClass.getConstructor(type).newInstance(instance));
+      }
+    }
+    //返回本实例
+    return instance;
+  } catch (Throwable t) {
+    throw new IllegalStateException("Extension instance(name: " + name + ", class: " +
+                                    type + ")  could not be instantiated: " + t.getMessage(), t);
+  }
+}
+```
+
+所以匹配到哪个实现类最主要的是判断getExtensionClasses，返回Map<String, Class<?>>的中的key
+
+
+#### 怎么获取到我想要的
+
+##### 所有的key
+
+上面的实例中返回的结果是,
+
+```java
+result = {HashMap@1437}  size = 3
+  "cloud" -> {Class@1536} "class dubbotest.SpringCloudAdaptiveExt2"
+  "thrift" -> {Class@1542} "class dubbotest.ThriftAdaptiveExt2"
+  "dubbo" -> {Class@1436} "class dubbotest.DubboAdaptiveExt2"
+```
+
+返回值中的key是在执行`loadResource`方法的时候，通过`=`符号之前的字符串指定的，如果需要确认查看ExtensionLoader.loadResource方法中的代码。
+
+##### 传入的key
+
+那么我们传入的key是怎么指定的呢？
+
+* 默认的key
+* 请求参数中URL带入的
+
+###### 默认的key
+
+在我们调用的时候什么都不指定的情况下，<br/>`String extName = url.getParameter("adaptive.ext2", "dubbo");`<br/>按照dubbo动态产生的适配器代码来看，会从URL中获取key为adaptive.ext2的值，如果没有设置，会使用我们在定义接口的时候指定的默认值,该值由`@SPI("dubbo")`指定
+
+###### 从请求参数URL中获取
+
+按照上面的代码<br/>`String extName = url.getParameter("adaptive.ext2", "dubbo");`<br/>如果在定义@SPI的时候没有指定默认值，那么我们必须在请求的时候传入一个值，从URL中传入。
+
+那么这个`adaptive.ext2`值是什么决定的呢，为什么叫这个名字。具体可以查看
+
+`ExtensionLoader.createAdaptiveExtensionClassCode`方法，关键步骤如下
+
+```java
+//获取方法上的注解；@Adaptive
+Adaptive adaptiveAnnotation = method.getAnnotation(Adaptive.class);
+
+//获取注解中的值，如果有指定，那就是它
+String[] value = adaptiveAnnotation.value();
+
+//如果没有指定，获取到这个接口的simpleName,
+//按照驼峰的方式，在两个单词间用.分隔，全部转化为小写，
+//所以我们实例中的AdaptiveExt2被转化成了adaptive.ext2
+if (value.length == 0) {
+  char[] charArray = type.getSimpleName().toCharArray();
+  StringBuilder sb = new StringBuilder(128);
+  for (int i = 0; i < charArray.length; i++) {
+    if (Character.isUpperCase(charArray[i])) {
+      if (i != 0) {
+        sb.append(".");
+      }
+      sb.append(Character.toLowerCase(charArray[i]));
+    } else {
+      sb.append(charArray[i]);
+    }
+  }
+  value = new String[]{sb.toString()};
+}
+
+```
+
+
+
+#### adaptiveExtesion的小结
+
+```mermaid
+graph TB
+1[调用方调用接口a] --> 2[ExtensionLoader.getExtensionLoader]
+2 --> 3[加载接口a的ExtensionLoader,一个接口一个]
+```
 
 
 
@@ -418,14 +578,9 @@ private T injectExtension(T instance) {
 
 
 
+## 留下的疑问
 
-
-
-
-
-
-
-
+* adaptive和Active使用上有什么区别
 
 
 
@@ -433,4 +588,6 @@ private T injectExtension(T instance) {
 ## 参考
 
 [源码讲解](https://blog.csdn.net/xiaoxufox/article/details/75117992)
+
+[@Adaptive测试-可以方便debug看源码](https://www.jianshu.com/p/dc616814ce98)
 
