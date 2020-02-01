@@ -569,18 +569,100 @@ if (value.length == 0) {
 ```mermaid
 graph TB
 1[调用方调用接口a] --> 2[ExtensionLoader.getExtensionLoader]
-2 --> 3[加载接口a的ExtensionLoader,一个接口一个]
+2 --> 3[加载接口a的ExtensionLoader,一个接口一个ExtensionLoader]
+3 --> 4[getAdaptiveExtension]
+4 --> 5[从指定目录下获取配置文件.加载里面写的类]
+5 --> 6{是否自己实现了适配器adapt}
+6 -->|自己实现| 7[直接返回这个适配器]
+6 -->|没有实现| 8[dubbo动态生成适配器]
+8 --> 9[返回]
+7 --> 9
+
+10[获取具体实现类] --> 11{获取类对应的Key}
+11 -->|URL未指定|12[使用默认值.没有默认值报错]
+11 -->|URL中指定|13[从URL中获取key]
+13 --> 14[从已加载的类中使用key获取实现类]
+12 --> 14
+
 ```
 
 
 
 
 
+## ActivateExtension
+
+```java
+//传入URL和key。可以自定义要从URL里面获取哪个key对应的value
+public List<T> getActivateExtension(URL url, String key) {
+   return getActivateExtension(url, key, null);
+ }
+
+//传入3个参数，values是从URL中通过key获取到的，group可以区分提供者还是消费者
+public List<T> getActivateExtension(URL url, String[] values, String group) {
+  List<T> exts = new ArrayList<T>();
+  List<String> names = values == null ? new ArrayList<String>(0) : Arrays.asList(values);
+  
+  //如果是用@Activate注解注释的情况下，不需要传参里面指定它也能被返回
+  if (!names.contains(Constants.REMOVE_VALUE_PREFIX + Constants.DEFAULT_KEY)) {
+    //获取拓展类，这一步和Adaptive的操作是一样的
+    //从配置文件中加载写的类，放入缓存中，如果是@Activate注解注释的类，会放入cachedActivates缓存中
+    getExtensionClasses();
+    for (Map.Entry<String, Activate> entry : cachedActivates.entrySet()) {
+      String name = entry.getKey();
+      Activate activate = entry.getValue();
+      //判断当前的activate和当前执行步骤是不是相同的group
+      if (isMatchGroup(group, activate.group())) {
+        //获取具体的实现类，放入exts缓存中
+        T ext = getExtension(name);
+        if (!names.contains(name)
+            && !names.contains(Constants.REMOVE_VALUE_PREFIX + name)
+            && isActive(activate, url)) {
+          exts.add(ext);
+        }
+      }
+    }
+    Collections.sort(exts, ActivateComparator.COMPARATOR);
+  }
+
+  //对于不是@Activate注解修饰的类，需要在链接里面指定，由key指定，values为具体的值
+  List<T> usrs = new ArrayList<T>();
+  for (int i = 0; i < names.size(); i++) {
+    String name = names.get(i);
+    if (!name.startsWith(Constants.REMOVE_VALUE_PREFIX)
+        && !names.contains(Constants.REMOVE_VALUE_PREFIX + name)) {
+      if (Constants.DEFAULT_KEY.equals(name)) {
+        if (!usrs.isEmpty()) {
+          exts.addAll(0, usrs);
+          usrs.clear();
+        }
+      } else {
+        T ext = getExtension(name);
+        usrs.add(ext);
+      }
+    }
+  }
+  if (!usrs.isEmpty()) {
+    exts.addAll(usrs);
+  }
+  return exts;
+}
+
+```
+
+
+
+> @Adaptive和@Activate的区别：
+>
+> Adaptive只返回一个实例，使用的适配器的方式，直接返回Adapt,根据传入的值URL中的值来判断最终使用到的是哪个实现类
+>
+> Activate返回一个列表，如果是@Activate注解注释的类，在获取的时候不需要通过传值的方式传入key，否着需要通过key从URL获取到请求的value，这样才能将对应的实现类加入到返回值中
+
 
 
 ## 留下的疑问
 
-* adaptive和Active使用上有什么区别
+* ~~adaptive和Active使用上有什么区别~~- --> 看上面一节就行
 
 
 
