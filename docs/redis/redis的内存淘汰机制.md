@@ -224,7 +224,7 @@ void evictionPoolPopulate(int dbid, dict *sampledict, dict *keydict, struct evic
      if (de) {
          robj *val = dictGetVal(de);
    
-         /* Update the access time for the ageing algorithm.
+         /* Update the access time for the ageing com.demo.li.algorithm.
           * Don't do it if we have a saving child, as this will trigger
           * a copy on write madness. */
          if (server.rdb_child_pid == -1 && server.aof_child_pid == -1)

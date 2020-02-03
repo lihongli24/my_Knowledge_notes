@@ -1,6 +1,6 @@
 1.����  set  list  hashmap  �����Լ���Ӧ���̰߳�ȫ���ϣ�copyonwriteArraylist   concurrenthashmap�ȣ� 
 	���������ϵ��ص��Լ������˽�Դ��   ���hash��ͻ   Ϊʲô��дequalsҪ��дhashcode����
-2.�߳�   ʵ���̵߳ļ��ַ�ʽ��thread  runnable  callable��  �߳�ͬ�� ͨ�� �߳�����synchronized Lock�� countdownlatch cyclicbarrier   semaphore volatile�ȹؼ��ֵ��÷�
+2.�߳�   ʵ���̵߳ļ��ַ�ʽ��com.demo.li.thread  runnable  callable��  �߳�ͬ�� ͨ�� �߳�����synchronized Lock�� countdownlatch cyclicbarrier   semaphore volatile�ȹؼ��ֵ��÷�
 	������������ģ��   wait/notify   condition.await/singal      sleep��wait������      (������ô�������߳�ִ�������ټ���ִ�У�countdownlatch cyclicbarrier��)
 	threadLocal 
 3.IO  �ַ��� �ֽ���   ����/������   ͬ��/�첽 NIOԭ��
@@ -15,7 +15,7 @@
 12�������ݿ�  ���ݿ����ԭ�� sql�Ż���ʽ����Щ  ���� ��  ����ͳ�Ʋ�ѯsql�����ԣ�    1�������ݲ�ѯ9000 0000 ��ʼ�����10�����ݵ�sql��limit�Ż���
 	�ֿ�ֱ� �ֹ��������� mysql����������ص�
 13 ���� ��redis memcache�Ա�    redis��������  ����  �־û�   ����֮����ô��������һ��
-14��Ⱥ�ֲ�ʽ��Ϣ�м��  �ֲ�ʽ����һ����   mysql������ô��������һ��   ���ؾ����㷨  ΢����  ��������֮��ͨ�ſ�ܣ���dubbotest��
+14��Ⱥ�ֲ�ʽ��Ϣ�м��  �ֲ�ʽ����һ����   mysql������ô��������һ��   ���ؾ����㷨  ΢����  ��������֮��ͨ�ſ�ܣ���com.demo.li.dubbotest��
 	 �ӿ�ͨ�Ű�ȫ �ֲ�ʽ������session����ʽ 	nginx���ؾ����㷨
 15�߲����������������Ľ����ʽ
 16�����㷨   �ַ������  ���ң����ֲ��ң� ����ð�ݡ����ţ�  

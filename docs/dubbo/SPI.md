@@ -348,15 +348,15 @@ public interface AdaptiveExt2 {
 生成的动态适配器为
 
 ```java
-package dubbotest;
+package com.demo.li.dubbotest;
 import com.alibaba.dubbo.common.extension.ExtensionLoader;
-public class AdaptiveExt2$Adpative implements dubbotest.AdaptiveExt2 {
+public class AdaptiveExt2$Adpative implements com.demo.li.dubbotest.AdaptiveExt2 {
 	public java.lang.String echo(java.lang.String arg0, com.alibaba.dubbo.common.URL arg1) {
 		if (arg1 == null) throw new IllegalArgumentException("url == null");
 		com.alibaba.dubbo.common.URL url = arg1;
 		String extName = url.getParameter("adaptive.ext2", "dubbo");
 		if(extName == null) throw new IllegalStateException("Fail to get extension(dubbotest.AdaptiveExt2) name from url(" + url.toString() + ") use keys([adaptive.ext2])");
-		dubbotest.AdaptiveExt2 extension = (dubbotest.AdaptiveExt2)ExtensionLoader.getExtensionLoader(dubbotest.AdaptiveExt2.class).getExtension(extName);
+		com.demo.li.dubbotest.AdaptiveExt2 extension = (com.demo.li.dubbotest.AdaptiveExt2)ExtensionLoader.getExtensionLoader(com.demo.li.dubbotest.AdaptiveExt2.class).getExtension(extName);
 		return extension.echo(arg0, arg1);
 	}
 }
@@ -657,6 +657,8 @@ public List<T> getActivateExtension(URL url, String[] values, String group) {
 > Adaptive只返回一个实例，使用的适配器的方式，直接返回Adapt,根据传入的值URL中的值来判断最终使用到的是哪个实现类
 >
 > Activate返回一个列表，如果是@Activate注解注释的类，在获取的时候不需要通过传值的方式传入key，否着需要通过key从URL获取到请求的value，这样才能将对应的实现类加入到返回值中
+
+看了其他位置的代码，dubbo真的是到处都是SPI
 
 
 
