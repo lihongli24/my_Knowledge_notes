@@ -32,7 +32,7 @@
 
 
 
-## netty 
+## com.demo.li.netty 
 
 #### Netty 的零拷贝(用户层面的零拷贝，偏向于数据操作优化)
 
@@ -56,7 +56,7 @@
 
 [tcp的buffer](https://www.cnblogs.com/promise6522/archive/2012/03/03/2377935.html)
 
-[netty buffer](http://ifeve.com/netty-2-buffer/)
+[com.demo.li.netty buffer](http://ifeve.com/netty-2-buffer/)
 
 [netty处理流程](https://www.yuque.com/page/luan.ma/netty-flow)
 

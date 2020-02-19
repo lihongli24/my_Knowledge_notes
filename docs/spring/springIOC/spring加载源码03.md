@@ -50,19 +50,18 @@ protected <T> T doGetBean(final String name, @Nullable final Class<T> requiredTy
 	final String beanName = transformedBeanName(name);
 	Object bean;
 
-	// Eagerly check singleton cache for manually registered singletons.
-	Object sharedInstance = getSingleton(beanName);
+	com.demo.li.singlcom.demo.li.singletonect sharedInstance = getSingleton(beanName);
 	if (sharedInstance != null && args == null) {
 		if (logger.isDebugEnabled()) {
 			if (isSingletonCurrentlyInCreation(beanName)) {
 				logger.debug("Returning eagerly cached instance of singleton bean '" + beanName +
-						"' that is not fully initialized yet - a consequence of a circular reference");
+						"' that iscom.demo.li.singletony initialized yet - a consequence of a circular reference");
 			}
 			else {
 				logger.debug("Returning cached instance of singleton bean '" + beanName + "'");
 			}
 		}
-		bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
+	com.demo.li.singletonetObjectForBeanInstance(sharedInstance, name, beanName, null);
 	}
 
 	else {

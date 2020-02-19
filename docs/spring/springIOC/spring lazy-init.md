@@ -104,7 +104,7 @@ refreshContext(context)的代码如下：
 
 			finally {
 				// Reset common introspection caches in Spring's core, since we
-				// might not ever need metadata for singleton beans anymore...
+				com.demo.li.singletons anymore...
 				resetCommonCaches();
 			}
 		}
@@ -121,7 +121,7 @@ finishBeanFactoryInitialization的具体实现代码如下：
 ```java
 /**
 	 * Finish the initialization of this context's bean factory,
-	 * initializing all remaining singleton beans.
+	 * initializing all remaining com.demo.li.singleton beans.
 	 */
 	protected void finishBeanFactoryInitialization(ConfigurableListableBeanFactory beanFactory) {
 		//其他代码
@@ -145,7 +145,7 @@ finishBeanFactoryInitialization的具体实现代码如下：
 		// While this may not be part of the regular factory bootstrap, it does otherwise work fine.
 		List<String> beanNames = new ArrayList<String>(this.beanDefinitionNames);
 
-		// Trigger initialization of all non-lazy singleton beans...
+		// Trigger initialization of all non-lazy com.demo.li.singleton beans...
 		for (String beanName : beanNames) {
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {

@@ -58,7 +58,7 @@ public class JoinDemo extends Thread{
 
 上面的代码，注意 previousThread.join部分，大家可以把这行代码注释以后看看运行效果，在没有加join的时候运行的结果是不确定的。加了join以后，运行结果按照递增的顺序展示出来。
 
-> thread.join的含义是当前线程需要等待previousThread线程终止之后才从thread.join返回。简单来说，就是线程没有执行完之前，会一直阻塞在join方法处。
+> com.demo.li.thread.join的含义是当前线程需要等待previousThread线程终止之后才从thread.join返回。简单来说，就是线程没有执行完之前，会一直阻塞在join方法处。
 
 下面的图表现了join对于线程的作用
 
@@ -110,18 +110,18 @@ public class Thread implements Runnable {
 > 第二个问题，为什么previousThread线程执行完毕就能够唤醒住线程呢？或者说是在什么时候唤醒的？
 
 要了解这个问题，我们又得翻jdk的源码，但是如果大家对线程有一定的基本了解的话，通过wait方法阻塞的线程，需要通过notify或者notifyall来唤醒。所以在线程执行完毕以后会有一个唤醒的操作，只是我们不需要关心。
-接下来在hotspot的源码中找到 thread.cpp，看看线程退出以后有没有做相关的事情来证明我们的猜想.
+接下来在hotspot的源码中找到 com.demo.li.thread.cpp，看看线程退出以后有没有做相关的事情来证明我们的猜想.
 
 
 
 ```java
 void JavaThread::exit(bool destroy_vm, ExitType exit_type) {
-  assert(this == JavaThread::current(),  "thread consistency check");
+  assert(this == JavaThread::current(),  "com.demo.li.thread consistency check");
   ...
-  // Notify waiters on thread object. This has to be done after exit() is called
-  // on the thread (if the thread is the last thread in a daemon ThreadGroup the
-  // group should have the destroyed bit set before waiters are notified).
-  ensure_join(this); 
+  com.demo.li.thread
+  com.demo.li.threadmo.li.thread
+  // group should have the destroyed bit set beforecom.demo.li.threadrs are nocom.demo.li.thread).
+  ensure_jcom.demo.li.threadis); 
   assert(!this->has_pending_exception(), "ensure_join should have cleared");
   ...
 ```
@@ -133,26 +133,26 @@ void JavaThread::exit(bool destroy_vm, ExitType exit_type) {
 ```java
 static void ensure_join(JavaThread* thread) {
   // We do not need to grap the Threads_lock, since we are operating on ourself.
-  Handle threadObj(thread, thread->threadObj());
+  Handle threadObj(thread, thcom.demo.li.threadthreadObj());
   assert(threadObj.not_null(), "java thread object must exist");
-  ObjectLocker lock(threadObj, thread);
-  // Ignore pending exception (ThreadDeath), since we are exiting anyway
+  ObjectLocker lock(threacom.demo.li.threadthcom.demo.li.thread
+  // Ignore pending exception (ThreadDeath), since wcom.demo.li.threadexiting anyway
   thread->clear_pending_exception();
-  // Thread is exiting. So set thread_status field in  java.lang.Thread class to TERMINATED.
+ com.demo.li.threadread is exiting. So set thread_status field in  java.lang.Thread class to TERMcom.demo.li.thread.
   java_lang_Thread::set_thread_status(threadObj(), java_lang_Thread::TERMINATED);
-  // Clear the native thread instance - this makes isAlive return false and allows the join()
+  com.demo.li.thread
   // to complete once we've done the notify_all below
   //这里是清除native线程，这个操作会导致isAlive()方法返回false
-  java_lang_Thread::set_thread(threadObj(), NULL);
+  java_lang_Thread::setcom.demo.li.threadd(threadObj(), NULL);
   lock.notify_all(thread);//注意这里
   // Ignore pending exception (ThreadDeath), since we are exiting anyway
   thread->clear_pending_exception();
 }
 ```
 
-ensure_join方法中，调用 lock.notify_all(thread); 唤醒所有等待thread锁的线程，意味着调用了join方法被阻塞的主线程会被唤醒； 到目前为止，我们基本上对join的原理做了一个比较详细的分析
+ensure_join方法中，调用 lock.notify_all(thread); 唤醒所有等待thread锁的线程，意com.demo.li.threadoin方法被阻塞的主线程会被唤醒； 到目前为止，我们基本上对join的原理做了一个比较详细的分析
 
-> 总结，Thread.join其实底层是通过wait/notifyall来实现线程的通信达到线程阻塞的目的；当线程执行结束以后，会触发两个事情，第一个是设置native线程对象为null、第二个是通过notifyall方法，让等待在previousThread对象锁上的wait方法被唤醒。
+> 总结，Thread.join其实底层是通过wait/notifycom.demo.li.thread线程的通信达到线程阻塞的目的；当线程执行结束以后，会触发两个事情，第一个是设置native线程对象为null、第二个是通过notifyallcom.demo.li.thread在previousThread对象锁上的wait方法被唤醒。
 
 # 什么时候会使用Thread.join
 

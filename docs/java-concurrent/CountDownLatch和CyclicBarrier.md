@@ -5,7 +5,7 @@
 ### CountDownLatch用例：
 
 ```java
-package thread;
+package com.demo.li.thread;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -20,9 +20,9 @@ public class CountDownLatchTest {
         //设置核心线程能够超时关闭,要不然这个测试类会一直无法停止
         threadPoolExecutor.allowCoreThreadTimeOut(true);
         for (int i = 0; i < 10; i++) {
-            Thread thread = new MyThread();
-            thread.setName(i + "");
-            threadPoolExecutor.submit(thread);
+            Thread com.demo.li.thread = new MyThread();
+            com.demo.li.thread.setName(i + "");
+            threadPoolExecutor.submit(com.demo.li.thread);
         }
         countDownLatch.await();
         System.out.println("主线程执行完毕");
@@ -49,7 +49,7 @@ public class CountDownLatchTest {
 ###  CyclicBarrier 使用实例
 
 ```java
-package thread;
+package com.demo.li.thread;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CyclicBarrier;
@@ -63,9 +63,9 @@ public class CyclicBarrierTest {
         ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 100, 1, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(20));
         threadPoolExecutor.allowCoreThreadTimeOut(true);
         for (int i = 0; i < 10; i++) {
-            Thread thread = new MyThread();
-            thread.setName(i + "");
-            threadPoolExecutor.submit(thread);
+            Thread com.demo.li.thread = new MyThread();
+            com.demo.li.thread.setName(i + "");
+            threadPoolExecutor.submit(com.demo.li.thread);
         }
     }
 

@@ -1,3 +1,5 @@
+import lombok.Data;
+
 public class Test {
 
 //    public static void main(String[] args){
@@ -21,6 +23,7 @@ public class Test {
 //        }
 //    }
 
+    @Data
     static class Child extends Parent{
         int name;
 
@@ -40,5 +43,9 @@ public class Test {
     public static void main(String[] args){
         Child child = new Child();
         child.name = 8;
+
+        System.out.print(child);
     }
+
+
 }

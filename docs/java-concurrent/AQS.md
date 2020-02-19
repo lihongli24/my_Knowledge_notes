@@ -93,7 +93,7 @@ public class ReentrantLockTest {
 线程9释放锁ssssssssss
 ```
 
-上面的测试用例，表示只有一个线程释放所持有的锁之后，才会有另外一个线程能获取锁成功执行后续的代码。(代码路径：src/main/java/aqs/ReentrantLockTest.java)
+上面的测试用例，表示只有一个线程释放所持有的锁之后，才会有另外一个线程能获取锁成功执行后续的代码。(代码路径：src/main/java/com.demo.li.aqs/ReentrantLockTest.java)
 
 用例里面获取锁和释放所的方法如下
 
@@ -517,7 +517,7 @@ static final class Node {
   //同步队列，后一个节点
   volatile Node next;
   //node代表的线程
-  volatile Thread thread;
+  volatile Thread com.demo.li.thread;
 
   //Condition队列的下个节点，如果是共享模式的话，就是SHARED这个Node
   Node nextWaiter;
@@ -712,7 +712,7 @@ private void unparkSuccessor(Node node) {
   }
   //如果存在后继节点，唤醒它
   if (s != null)
-    LockSupport.unpark(s.thread);
+    LockSupport.unpark(s.com.demo.li.thread);
 }
 ```
 
@@ -880,7 +880,7 @@ public final boolean releaseShared(int arg) {
         int ws = p.waitStatus;
      		//如果这个节点的前置节点为cancel或者设置前置节点状态sign失败，unpark这个节点的线程
         if (ws > 0 || !compareAndSetWaitStatus(p, ws, Node.SIGNAL))
-            LockSupport.unpark(node.thread);
+            LockSupport.unpark(node.com.demo.li.thread);
         return true;
     }
    

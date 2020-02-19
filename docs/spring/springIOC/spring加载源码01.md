@@ -40,11 +40,11 @@ protected <T> T doGetBean(final String name, @Nullable final Class<T> requiredTy
 		if (sharedInstance != null && args == null) {
 			if (logger.isDebugEnabled()) {
 				if (isSingletonCurrentlyInCreation(beanName)) {
-					logger.debug("Returning eagerly cached instance of singleton bean '" + beanName +
+					logger.debug("Returning eagerly cached instance of com.demo.li.singleton bean '" + beanName +
 							"' that is not fully initialized yet - a consequence of a circular reference");
 				}
 				else {
-					logger.debug("Returning cached instance of singleton bean '" + beanName + "'");
+					logger.debug("Returning cached instance of com.demo.li.singleton bean '" + beanName + "'");
 				}
 			}
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
@@ -114,8 +114,8 @@ protected <T> T doGetBean(final String name, @Nullable final Class<T> requiredTy
 					}
 					catch (IllegalStateException ex) {
 						throw new BeanCreationException(beanName,
-								"Scope '" + scopeName + "' is not active for the current thread; consider " +
-								"defining a scoped proxy for this bean if you intend to refer to it from a singleton",
+								"Scope '" + scopeName + "' is not active for the current com.demo.li.thread; consider " +
+								"defining a scoped proxy for this bean if you intend to refer to it from a com.demo.li.singleton",
 								ex);
 					}
 				}
@@ -169,7 +169,7 @@ public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
 							"(Do not request a bean from a BeanFactory in a destroy method implementation!)");
 				}
 				if (logger.isDebugEnabled()) {
-					logger.debug("Creating shared instance of singleton bean '" + beanName + "'");
+					logger.debug("Creating shared instance of com.demo.li.singleton bean '" + beanName + "'");
 				}
 				beforeSingletonCreation(beanName);
 				//定义异常
@@ -179,7 +179,7 @@ public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
 					newSingleton = true;
 				}
 				catch (IllegalStateException ex) {
-					// Has the singleton object implicitly appeared in the meantime ->
+					com.demo.licom.demo.li.singletonn
 					// if yes, proceed with it since the exception indicates that state.
 					singletonObject = this.singletonObjects.get(beanName);
 					if (singletonObject == null) {
@@ -218,8 +218,7 @@ public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
 1. FactoryBean：https://www.cnblogs.com/davidwang456/p/3688250.html
 2. bean的作用域：
     1. singleton:整个容器中保留一份
-    2. prototype:每次使用的时候，创建新的
-    3. 其他scope
+    2. prototype:每次使用的时候，com.demo.li.singleton3. 其他scope
        1. SimpleThreadScope
        2. RequestScope
        3. SessionScope
