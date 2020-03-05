@@ -1,4 +1,4 @@
-package algorithm.leetcode;
+package com.demo.li.algorithm.leetcode;
 
 /**
  * 数字反转
