@@ -7,3 +7,5 @@
 6. dubbo启动注册流程，感觉有点慢，看看怎么优化下
 7. CompletableFuture
 8. 单测的注解 @Before之类的
+9. maven的作用域
+

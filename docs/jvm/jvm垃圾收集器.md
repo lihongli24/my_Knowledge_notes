@@ -63,7 +63,7 @@ Java虚拟机垃圾回收(三) 7种垃圾收集器
 > ​    因为Java对象大多是朝生夕灭，所以Minor GC非常频繁，一般回收速度也比较快；
 >
 > （B）、Full GC
->
+> ***纠正下：full GC = 老年代GC + 新生代GC***
 > ​    又称Major GC或老年代GC，指发生在老年代的GC；
 >
 > ​    出现Full GC经常会伴随至少一次的Minor GC（不是绝对，Parallel Sacvenge收集器就可以选择设置Major GC策略）；

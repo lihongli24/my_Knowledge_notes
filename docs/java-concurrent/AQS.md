@@ -133,7 +133,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
 
 
 
-####ReentrantLock的获取锁和释放锁 
+#### ReentrantLock的获取锁和释放锁 
 
 ReentrantLock里面持有一个Sync，这个就是我们的AQS的子类。这个Sync有两个实现类NonfairSync和FairSync，就是所谓的公平锁和非公平锁。
 
@@ -198,12 +198,14 @@ static final class FairSync extends Sync {
     final Thread current = Thread.currentThread();
     int c = getState();
     if (c == 0) {
+      //判断当前同步队列中是否已经存在其他节点，如果没有才尝试获取锁
       if (!hasQueuedPredecessors() &&
           compareAndSetState(0, acquires)) {
         setExclusiveOwnerThread(current);
         return true;
       }
     }
+    //如果就是当前拥有锁的就是它自己，增加state
     else if (current == getExclusiveOwnerThread()) {
       int nextc = c + acquires;
       if (nextc < 0)
@@ -221,6 +223,7 @@ static final class FairSync extends Sync {
 **/
 static final class NonfairSync extends Sync {
   protected final boolean tryAcquire(int acquires) {
+   //非公平锁调用父类中定义的非公平获取方式
     return nonfairTryAcquire(acquires);
   }
 }
@@ -233,11 +236,13 @@ abstract static class Sync extends AbstractQueuedSynchronizer {
     final Thread current = Thread.currentThread();
     int c = getState();
     if (c == 0) {
+      //直接尝试获取锁，不管当前同步队列中是否有其他线程在等待
       if (compareAndSetState(0, acquires)) {
         setExclusiveOwnerThread(current);
         return true;
       }
     }
+    //如果就是当前拥有锁的就是它自己，增加state
     else if (current == getExclusiveOwnerThread()) {
       int nextc = c + acquires;
       if (nextc < 0) // overflow
@@ -246,19 +251,6 @@ abstract static class Sync extends AbstractQueuedSynchronizer {
       return true;
     }
     return false;
-  }
-
-  protected final boolean tryRelease(int releases) {
-    int c = getState() - releases;
-    if (Thread.currentThread() != getExclusiveOwnerThread())
-      throw new IllegalMonitorStateException();
-    boolean free = false;
-    if (c == 0) {
-      free = true;
-      setExclusiveOwnerThread(null);
-    }
-    setState(c);
-    return free;
   }
 }
 ```
@@ -277,8 +269,11 @@ abstract static class Sync extends AbstractQueuedSynchronizer {
 * 父类
 **/
 abstract static class Sync extends AbstractQueuedSynchronizer {
+  //释放锁
   protected final boolean tryRelease(int releases) {
+    //减少state,因为多次入锁会对state做加1，所以每次释放都是对state减1---重入锁
     int c = getState() - releases;
+    //如果当前拥有锁的不是当前线程，无法释放，抛异常
     if (Thread.currentThread() != getExclusiveOwnerThread())
       throw new IllegalMonitorStateException();
     boolean free = false;
@@ -545,7 +540,7 @@ public final void acquire(int arg) {
 
 该方法在AQS类中没有做实现，具体的实现细节在ReentrantLock这种实现类的Sync中会做实现。
 
-####addWaiter（根据当前线程创建Node,加入同步队列）
+##### addWaiter（根据当前线程创建Node,加入同步队列）
 
 ```java
 
