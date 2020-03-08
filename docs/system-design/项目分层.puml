@@ -1,0 +1,115 @@
+@startuml
+
+package archetype_project_parent {
+    package archetype_project_starter {
+        [StartUp]
+    }
+
+    package archetype_project_adapter{
+        [rest_controller]
+        [dubbo_provider]
+        [kafka_consumer]
+    }
+
+    package archetype_project_client {
+        [client_service]
+        [dto]
+        [client_exception]
+        [client_constants]
+        [client_enum]
+    }
+
+    package archetype_project_application {
+        [service_impl]
+        [event_bus]
+        [event_handler]
+        [command_bus]
+        [command_handler]
+        [query_service]
+    }
+
+    package archetype_project_domain {
+        [aggregate]
+        [entity]
+        [factory]
+        [repository]
+        [valueobject]
+        [domain_converter]
+    }
+
+    package archetype_project_infrastructure {
+        [dao]
+        [mq_sender_client]
+        [remote_service]
+        [data_object]
+        [do_converter]
+        [core_config]
+
+    }
+
+    package archetype_project_common {
+        [common_enums]
+        [common_constants]
+        [base_object]
+    }
+}
+
+archetype_project_starter --> archetype_project_adapter
+archetype_project_adapter --> archetype_project_application
+archetype_project_application --> archetype_project_domain
+archetype_project_application -left-> archetype_project_client
+archetype_project_client -down-> archetype_project_common
+archetype_project_domain -down-> archetype_project_infrastructure
+archetype_project_infrastructure --> archetype_project_common
+
+
+
+database "MySql" {
+  folder "tables" {
+	[table1]
+	[table2]
+  }
+}
+
+cloud {
+  dubbo -[dubbo_service]
+}
+
+database "MongoDb" {
+  folder "documents" {
+	[document1]
+	[document2]
+  }
+}
+
+database "Elasticsearch" {
+  folder "indices" {
+	[index1]
+	[index2]
+  }
+}
+
+database "Redis" {
+  folder "List" {
+	[list1]
+	[list2]
+  }
+}
+
+database "Kafka" {
+  folder "topic" {
+	[topic1]
+	[topic2]
+  }
+}
+
+[remote_service] -right-> dubbo
+[mq_sender_client] -up-> topic
+[dao] --> MySql
+[dao] --> MongoDb
+[dao] --> Elasticsearch
+[dao] --> Redis
+[kafka_consumer] <-- Kafka
+
+
+@enduml
