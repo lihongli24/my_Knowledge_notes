@@ -28,7 +28,7 @@ private void invokeAwareMethods(final String beanName, final Object bean) {
 ```
 可以从代码中看到，invokeAwareMethod只是对BeanNameAware、BeanClassLoaderAware、BeanFactoryAware做了方法调用，我们熟悉的ApplicationContextAware呢？？？
 
-==其实这部分的实现，Spring把它们放到了第二步，BeanPostProcessor中去实现，更加方便拓展==
+***其实这部分的实现，Spring把它们放到了第二步，BeanPostProcessor中去实现，更加方便拓展***
 
 ### BeanPostProcessor
 在initializeBean的过程中，分别遍历调用的 

@@ -178,7 +178,7 @@ finishBeanFactoryInitialization的具体实现代码如下：
 	}
 ```
 
-==按照上面的代码，spring在初始化容器的时候，只会对以下的bean做初始化==
+***按照上面的代码，spring在初始化容器的时候，只会对以下的bean做初始化***
 * 不是抽象类
 * 必须是单例
 * 不是LazyInit类

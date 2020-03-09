@@ -40,3 +40,6 @@ docs/config-files/vimrc，将他放到~目录下，修改文件名为.vimrc
 一天一算法
 
 文件夹：/docs/com.demo.li.algorithm
+
+## 值得看的文档公众号
+[美团的](https://tech.meituan.com/)
