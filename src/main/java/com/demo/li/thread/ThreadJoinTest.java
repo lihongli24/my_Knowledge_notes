@@ -10,6 +10,11 @@ public class ThreadJoinTest extends Thread{
         @Override
         public void run() {
             try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            try {
                 //调用上一个线程的join方法，大家可以自己演示的时候可以把这行代码注释掉
                 previousThread.join();
             } catch (InterruptedException e) {
