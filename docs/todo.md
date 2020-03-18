@@ -13,7 +13,7 @@
 12. fail-fast和fail-safe  java集合中常用到的概念（Arrlist的ConcurrentModificationException和CopyOnWriteArrayList就是这两种模式的实现）
 13. 红黑树和平衡二叉树的区别
 14. [java8的stream](https://www.cnblogs.com/carpenterlee/p/6637118.html)
-
+15. @Autowire和@Resource的区别
 
 
 
