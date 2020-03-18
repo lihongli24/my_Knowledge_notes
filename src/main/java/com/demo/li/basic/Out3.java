@@ -22,7 +22,9 @@ public class Out3 {
     }
 
     private void method2(){
-        RemoteInterface remoteInterface = () ->{System.out.println("name:" + name + ", age:" + age);};
+        name = "asd";
+        String namess = new String("aaajjjj");
+        RemoteInterface remoteInterface = () ->{System.out.println("name:" + namess + ", age:" + age);};
         remoteInterface.print();
     }
 
