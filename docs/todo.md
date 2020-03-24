@@ -14,7 +14,7 @@
 13. 红黑树和平衡二叉树的区别
 14. [java8的stream](https://www.cnblogs.com/carpenterlee/p/6637118.html)
 15. @Autowire和@Resource的区别
-
+16. [guava缓存](https://blog.csdn.net/abc86319253/article/details/53020432)
 
 
 
