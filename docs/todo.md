@@ -15,7 +15,8 @@
 14. [java8的stream](https://www.cnblogs.com/carpenterlee/p/6637118.html)
 15. @Autowire和@Resource的区别
 16. [guava缓存](https://blog.csdn.net/abc86319253/article/details/53020432)
-
+17. mysql cup很高什么情况
+18. redis大key
 
 
 > 1. 总结之前做过的项目 
