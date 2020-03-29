@@ -18,6 +18,7 @@
 16. [guava缓存](https://blog.csdn.net/abc86319253/article/details/53020432)
 17. mysql cup很高什么情况
 18. redis大key
+19. 测试
 
 
 > 1. 总结之前做过的项目 
