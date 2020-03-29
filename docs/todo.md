@@ -6,7 +6,8 @@
 5. RingBuffer
 6. dubbo启动注册流程，感觉有点慢，看看怎么优化下
 7. CompletableFuture
-8. 单测的注解 @Before之类的
+8. ~~单测的注解 @Before之类的~~ 
+    1. 见文章 ***junit/junit的大致执行流程.md***
 9. maven的作用域
 10. [forkjoin](https://blog.dyngr.com/blog/2016/09/15/java-forkjoinpool-internals/)
 11. 泛型中的?
