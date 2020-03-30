@@ -12,8 +12,11 @@ public class GenericTest {
 
     public static void main(String[] args){
         List<? super Apple> list = new ArrayList<>();
-//        list.add(new Apple());
-        list.add(new Fruit());
+        list.add(new Apple());
+        list.add(new RedApple());
+
+//        list.get(0);
+//        list.add(new Fruit());
 
     }
 
@@ -22,6 +25,10 @@ public class GenericTest {
     }
 
     public static class Apple extends Fruit{
+
+    }
+
+    public static class RedApple extends Apple{
 
     }
 }

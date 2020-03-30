@@ -1,19 +1,25 @@
 @startuml
 
 package archetype_project_parent {
-    package archetype_project_starter {
+    package archetype_project_start {
         [StartUp]
+        [Health_check]
     }
 
     package archetype_project_adapter{
         [rest_controller]
         [dubbo_provider]
+        [atop]
         [kafka_consumer]
+    }
+
+    package archetype_project_task{
+        [task_job]
     }
 
     package archetype_project_client {
         [client_service]
-        [dto]
+        [client_object]
         [client_exception]
         [client_constants]
         [client_enum]
@@ -37,32 +43,31 @@ package archetype_project_parent {
         [domain_converter]
     }
 
+    package archetype_project_integration {
+        [remote_object]
+        [remote_service]
+        [remote_converter]
+    }
+
     package archetype_project_infrastructure {
         [dao]
         [mq_sender_client]
-        [remote_service]
         [data_object]
         [do_converter]
-        [core_config]
-
     }
 
-    package archetype_project_common {
-        [common_enums]
-        [common_constants]
-        [base_object]
-    }
 }
 
-archetype_project_starter --> archetype_project_adapter
-archetype_project_adapter --> archetype_project_application
-archetype_project_application --> archetype_project_domain
-archetype_project_application -left-> archetype_project_client
-archetype_project_client -down-> archetype_project_common
+archetype_project_start -down-> archetype_project_adapter
+archetype_project_start -down-> archetype_project_task
+archetype_project_adapter -down-> archetype_project_application
+archetype_project_task -down-> archetype_project_application
+archetype_project_application -down-> archetype_project_domain
+archetype_project_application -down-> archetype_project_integration
+archetype_project_application -down-> archetype_project_infrastructure
 archetype_project_domain -down-> archetype_project_infrastructure
-archetype_project_infrastructure --> archetype_project_common
 
-
+archetype_project_application -up-> archetype_project_client
 
 database "MySql" {
   folder "tables" {
@@ -103,13 +108,14 @@ database "Kafka" {
   }
 }
 
-[remote_service] -right-> dubbo
+[remote_service] --> dubbo
+[repository] -down-> Redis
 [mq_sender_client] -up-> topic
 [dao] --> MySql
 [dao] --> MongoDb
-[dao] --> Elasticsearch
-[dao] --> Redis
-[kafka_consumer] <-- Kafka
+[dao] -right-> Elasticsearch
+
+[kafka_consumer] <-down- Kafka
 
 
 @enduml
