@@ -1,5 +1,7 @@
 package com.demo.li.basic;
 
+import com.alibaba.fastjson.JSONArray;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,13 +13,7 @@ public class GenericTest {
 
 
     public static void main(String[] args){
-        List<? super Apple> list = new ArrayList<>();
-        list.add(new Apple());
-        list.add(new RedApple());
-
-//        list.get(0);
-//        list.add(new Fruit());
-
+        System.out.println(JSONArray.toJSONString(new Integer[] {}));
     }
 
     public static class Fruit{
