@@ -41,10 +41,14 @@ public class Test {
     }
 
     public static void main(String[] args){
-        Child child = new Child();
-        child.name = 8;
-
-        System.out.print(child);
+//        Child child = new Child();
+//        child.name = 8;
+//
+//        System.out.print(child);
+        Boolean bb = null;
+        if(bb == false){
+            System.out.println("aa");
+        }
     }
 
 
