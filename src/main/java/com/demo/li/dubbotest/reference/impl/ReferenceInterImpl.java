@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * @author lihongli
  * create：2020/2/2 4:00 下午
  */
-@Component
+//@Component
 public class ReferenceInterImpl implements ReferenceInter {
     @Reference
     private ServiceInter serviceInter;

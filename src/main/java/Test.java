@@ -45,10 +45,14 @@ public class Test {
 //        child.name = 8;
 //
 //        System.out.print(child);
-        Boolean bb = null;
-        if(bb == false){
-            System.out.println("aa");
-        }
+//        Boolean bb = null;
+//        if(bb == false){
+//            System.out.println("aa");
+//        }
+
+        Object a = null;
+        Child result = (Child)a;
+        System.out.println("a");
     }
 
 

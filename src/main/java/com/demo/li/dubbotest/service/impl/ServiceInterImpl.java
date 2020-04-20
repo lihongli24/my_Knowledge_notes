@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author lihongli
  * create：2020/2/2 3:27 下午
  */
-@Service
+//@Service
 public class ServiceInterImpl implements ServiceInter {
     @Override
     public String say(String param) {

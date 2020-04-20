@@ -13,9 +13,9 @@ import org.springframework.context.annotation.Configuration;
  * @author lihongli
  * create：2020/2/2 3:28 下午
  */
-@Configuration
-@EnableDubbo(scanBasePackageClasses = {ServiceInterImpl.class, ReferenceInterImpl.class})
-@ComponentScan(basePackageClasses = ReferenceInterImpl.class)
+//@Configuration
+//@EnableDubbo(scanBasePackageClasses = {ServiceInterImpl.class, ReferenceInterImpl.class})
+//@ComponentScan(basePackageClasses = ReferenceInterImpl.class)
 public class DubboConfig {
     @Bean // #1
     public ProviderConfig providerConfig() {
