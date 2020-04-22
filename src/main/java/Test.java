@@ -1,5 +1,9 @@
 import lombok.Data;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class Test {
 
 //    public static void main(String[] args){
@@ -50,9 +54,12 @@ public class Test {
 //            System.out.println("aa");
 //        }
 
-        Object a = null;
-        Child result = (Child)a;
-        System.out.println("a");
+//        Object a = null;
+//        Child result = (Child)a;
+//        System.out.println("a");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("y-MMMMM-dd", Locale.ENGLISH);
+        Date date =  new Date();
+        System.out.println(simpleDateFormat.format(date));
     }
 
 
