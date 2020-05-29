@@ -12,9 +12,8 @@ public class CycleLink {
 
 
     public static void main(String[] args) {
+        //创建一个带环的链
         Link header = createLoopLink();
-
-//        System.out.println(hasLoop(header));
 
         Link loopHeader = findLoopHeader(header);
         if(null == loopHeader){
@@ -22,14 +21,13 @@ public class CycleLink {
         }else {
             System.out.println(loopHeader.getValue());
         }
-
-//        Link current = header;
-//        while (current != null){
-//            System.out.println(current.getValue());
-//            current = current.next;
-//        }
     }
 
+    /**
+     * 获取环的起点
+     * @param header
+     * @return
+     */
     private static Link findLoopHeader(Link header) {
         Link slow = header;
         Link fast = header;
