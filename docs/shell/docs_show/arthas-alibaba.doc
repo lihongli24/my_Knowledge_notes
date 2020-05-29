@@ -1,0 +1,6 @@
+# 简单查看出入参
+watch demo.MathGame primeFactors "{params,returnObj}" -x 2
+
+# 需要显示异常的情况
+watch demo.MathGame primeFactors "{params,returnObj,throwExp}" -x 2
+
