@@ -4,12 +4,13 @@ import com.alibaba.dubbo.spring.boot.annotation.EnableDubboConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 
 /**
  * @author lihongli
  * create：2020/2/2 3:36 下午
  */
-@SpringBootApplication(scanBasePackageClasses = SpringLaner.class, exclude = {DataSourceAutoConfiguration.class})
+@SpringBootApplication(scanBasePackageClasses = SpringLaner.class, exclude = {DataSourceAutoConfiguration.class, KafkaAutoConfiguration.class})
 @EnableDubboConfiguration
 public class SpringLaner {
 
