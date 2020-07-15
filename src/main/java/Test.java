@@ -1,7 +1,9 @@
 import lombok.Data;
+import org.testng.collections.Lists;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class Test {
@@ -57,9 +59,12 @@ public class Test {
 //        Object a = null;
 //        Child result = (Child)a;
 //        System.out.println("a");
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("y-MMMMM-dd", Locale.ENGLISH);
-        Date date =  new Date();
-        System.out.println(simpleDateFormat.format(date));
+//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("y-MMMMM-dd", Locale.ENGLISH);
+//        Date date =  new Date();
+//        System.out.println(simpleDateFormat.format(date));
+        String str = null;
+        List<String> list = Lists.newArrayList(str);
+        System.out.println("aa");
     }
 
 
