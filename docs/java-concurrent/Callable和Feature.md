@@ -39,6 +39,9 @@ public interface Future<V> {
 }
 
 ```
+
+![](https://tva1.sinaimg.cn/large/007S8ZIlgy1gjjie5u28cj30m80j0aar.jpg)
+
 从上面的代码可以看出来，<br/>
 FutureTask实现了RunnableFuture ---》<br/> RunnableFuture又是继承了Runnable和Future ---》<br/> 所以FutureTask就是Runnable和Future接口的实现类。<br/>
 所以，她既是`我们原先使用的线程`又可以对`这个线程做取消，获取返回值等操作`。
