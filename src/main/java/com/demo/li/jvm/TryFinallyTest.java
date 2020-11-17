@@ -17,6 +17,9 @@ public class TryFinallyTest {
     }
 
     public static void main(String[] args){
+        Object aa = null;
+
+        String str = (String) aa;
         System.out.println(func());
     }
 

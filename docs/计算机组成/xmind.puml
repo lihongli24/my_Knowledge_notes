@@ -1,0 +1,33 @@
+@startmindmap
++ 硬件基础支持
+++ 运行原理
+++ cpu
++++ 特性
+++++ 乱序执行/指令重排
++++++ DCL 为什么需要volatile
++++ pc 程序计数器
++++ Register 寄存器
++++ ALU 运算单元
++++ CU  控制单元
++++ MMU 内存管理单元
++++ cache l1-l3
+++++ 缓存一致性协议
++++++ MESI(英特尔)
+++++ 缓存行对其
++++++ 缓存行:英特尔cpu是64位
++++++ jdk7:disruptor p1-p7 long p8-p14
++++++ jdk8: @Contended 需要加上 -XX:-RestrictContended
+++ 内存
+++ io设备
++++ 鼠标
++++ 键盘
++++ 显示器
++++ 磁盘
++++ 网卡
++++ 等
+++ io bradge
+++ 总线
++++ 数据总线
++++ 地址总线
++++ 控制总线
+@endmindmap

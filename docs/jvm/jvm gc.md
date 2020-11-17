@@ -1,4 +1,5 @@
 # jvm GC
+[toc]
 
 ## 区分
 
@@ -74,3 +75,35 @@ graph TD
     4-->|小于|fullGC[执行fullgc]
     3-->|false|fullGC
 ```
+
+## jvm动态年龄判断
+[动态年龄判断](https://www.jianshu.com/p/989d3b06a49d)
+```
+uint ageTable::compute_tenuring_threshold(size_t survivor_capacity) {
+    //survivor_capacity是survivor空间的大小
+  size_t desired_survivor_size = (size_t)((((double) survivor_capacity)*TargetSurvivorRatio)/100);
+  size_t total = 0;
+  uint age = 1;
+  while (age < table_size) {
+    total += sizes[age];//sizes数组是每个年龄段对象大小
+    if (total > desired_survivor_size) break;
+    age++;
+  }
+  uint result = age < MaxTenuringThreshold ? age : MaxTenuringThreshold;
+    ...
+}
+```
+假设如下：
+MaxTenuringThreshold为15
+年龄1的对象占用了33%
+年龄2的对象占用33%
+年龄3的对象占用34%。
+
+TargetSurvivorRatio 默认是50%
+
+年龄1的占用了33%，年龄2的占用了33%，累加和超过默认的TargetSurvivorRatio（50%），年龄2和年龄3的对象都要晋升。
+
+
+
+#### 结论：
+动态对象年龄判断，主要是被TargetSurvivorRatio这个参数来控制。而且算的是年龄从小到大的累加和，而不是某个年龄段对象的大小。看完后先记住这个参数吧TargetSurvivorRatio，虽然你以后基本不会调整他。
