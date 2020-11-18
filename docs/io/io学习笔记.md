@@ -127,7 +127,7 @@ page cache 是内核维护的，用来提高进程读写效率的一种机制。
 2. 程序被加载入内存，也是按照page为单位来加载的。不会一整个程序全都加载到内存中。
 3. 一个page的大小为 4KB
 4. 内核来维护pagecache的好处
-   1. 提高了读写的消息
+   1. 提高了读写的消息,数据不用每次都写入磁盘，减少了磁盘的调用。
    2. 多个进程访问同一份数据，只要同一个pagecache就行了
 5. 可能存在的问题：刷盘策略设置的不对，丢的数据会比较多。
 
@@ -140,14 +140,124 @@ page cache 是内核维护的，用来提高进程读写效率的一种机制。
 对于一个pagecache, 如果app对其进行了操作(create、update)，对应的页会被标记为dirty。
 
 * 刷盘策略： 可以配置间隔时间、可以配置脏页占用内存大小。达到某个条件时，操作系统会把脏页中的数据，刷新到磁盘上去。
+* 内存淘汰：对于被缓存在page cache中的数据达到程度之后，新载入的数据没有空间存放，会通过LRU算法将最近使用最少使用的数据淘汰出内存。如果这个需要被淘汰的page cache是dirty的话，必须进行同步到磁盘的操作。
 
 
 
 ![](https://tva1.sinaimg.cn/large/0081Kckwgy1gksm6oh04xj31d20mkdjt.jpg)
 
-## 缺页
+## 缺页中断
 
 ![image-20201118000337471](https://tva1.sinaimg.cn/large/0081Kckwgy1gksm7prbrqj31o20fkq8t.jpg)
+
+当进程读取数据到当前不在page cache中的数据，就会发出缺页中断，由dma（协处理器)将page内容加载的page cache中缓存起来，再由dma发起中断，通知cpu文件加载完成，让cpu执行原先缺页的进程。
+
+可以认为是一种通知cpu处理某种事情的机制，否则cpu无法处理多件事情。
+
+## java的nio
+
+nio其实由两种
+
+1. 一种是操作系统的io方式，非阻塞io
+2. 另外一种是java层面的，new io,新的io处理方式
+
+这里先讲一下关于java nio的概念。
+
+![image-20201118233816812](https://tva1.sinaimg.cn/large/0081Kckwgy1gktr3oqfhbj31iy0u0n9u.jpg)
+
+在上面的图中，描述了一个jvm进程和内核占用的内存情况。
+
+* 图中的heap有两个，一个是整个jvm进程的heap,还有一个是jvm进程内，我们熟悉的 jvm堆
+
+  
+
+
+
+java中使用文件io的方式主要有下面几种
+
+1. 直接获取输出流
+
+```java
+File file = new File(path);
+FileOutputStream out = new FileOutputStream(file);
+while(true){
+  Thread.sleep(10);
+  out.write(data);
+
+}
+```
+
+> 每次write都会触发系统调用syscall，往内核维护的page cache 中写如。
+>
+> 因为不断的进行syscall，在用户态和内核态中切换，所以效率会低
+
+2. 使用BufferedOutputStream
+
+```java
+ File file = new File(path);
+BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));
+while(true){
+  Thread.sleep(10);
+  out.write(data);
+}
+```
+
+> ```
+> jvm 会维护一个 8kB数组，到了8k在进行系统调用   syscall  write(8KBbyte[])
+> 
+> 这个时候写入的也是page cache
+> 
+> 但是会把数据攒一会，再去调用 系统调用，所以频率没有上面那个那么高，效率会高一些。
+> ```
+
+
+
+3. 使用java nio中的ByteBuffer.allocate来操作
+
+```java
+RandomAccessFile raf = new RandomAccessFile(path, "rw");
+FileChannel rafchannel = raf.getChannel();
+ByteBuffer buffer = ByteBuffer.allocate(8192);
+int read = rafchannel.read(buffer);
+```
+
+4. 使用java nio中的ByteBuffer.allocateDirect来操作
+
+```java
+RandomAccessFile raf = new RandomAccessFile(path, "rw");
+FileChannel rafchannel = raf.getChannel();
+ByteBuffer buffer = ByteBuffer.allocate(8192);
+int read = rafchannel.read(buffer);
+```
+
+5. 使用mmap
+
+```java
+RandomAccessFile raf = new RandomAccessFile(path, "rw");
+FileChannel rafchannel = raf.getChannel();
+//mmap  堆外  和文件映射的   byte  not  objtect
+MappedByteBuffer map = rafchannel.map(FileChannel.MapMode.READ_WRITE, 0, 4096);
+map.put("@@@".getBytes());
+```
+
+
+
+
+
+### java nio的总结：
+
+前面三种：直接操作的是jvm heap内的空间，要写入page cache中，还需要进行堆外的拷贝后再进行***系统调用***。效率最低
+
+第4种: 使用了jvm进程的直接地址空间，省去了一次jvm heap到堆外的拷贝，最终还是需要***系统调用***写入page cache中。
+
+第5种，使用了mmap的方式，直接将在linux 进程的堆外和page cache 进行了映射，往map里面写入数据直接进入page cache ,不需要进行系统调用，效率最高，但是这种方式仅限于file.
+
+
+
+### 使用扩展
+
+1. netty: (on heap/off heap),
+2. kafka log文件 ： mmap
 
 
 
