@@ -261,6 +261,59 @@ map.put("@@@".getBytes());
 
 
 
+## 网络io socketio
+
+上面讲的差不多是文件io.这里下面讲一下网络io
+
+![image-20201119224824109](https://tva1.sinaimg.cn/large/0081Kckwgy1gkuva2jbovj31dv0u0n9y.jpg)
+
+
+
+上面的图片介绍的是tcp网络连接时候的内容
+
+### 建立tcp连接会发生什么
+
+1. 服务端监听某个端口号，调用系统调用accept,进行阻塞等待
+2. 客户端连接对应的端口号
+   1. 会在内核中完成三次握手操作。
+   2. 在服务端和客户端都会分配一份资源给这次的连接，这个时候这个连接还不属于某一个进程
+   3. 即使不调用服务端的accept,三次握手和资源分配都会完成，这个时候客户端如果往连接中发送数据，数据也会在连接的receive queue中
+3. 服务端的accept系统调用有返回，本次连接的文件描述符fd(对于java代码来说会封装成一个socket)
+
+### tcp连接中的四元组
+
+tcp的四元组：服务端.ip+服务端.port+客户端.ip+客户端.port
+
+上面四个属性能唯一确定一个条目，当对应的连接关联到某一个进程中，那么到这个四元组的数据就能被对应的进程处理。
+
+* 端口使用一个16位的数字表示，它的范围是0~65535，0到1023之间的端口号保留给预定义的服务。
+
+### 相关的linux 命令
+
+* lsof -op 进程Id
+
+可以看到打开的文件
+
+
+
+* netstat -natp
+
+  可以看到网络信息，但是mac不太一样
+
+  ![image-20201119233904937](https://tva1.sinaimg.cn/large/0081Kckwgy1gkuwqwzbv7j315y0a0q4x.jpg)
+
+可以看到
+
+* Recv-Q/Send-Q
+* 状态
+* 该连接关联的进程等
+
+
+
+### 连接分配相关资源
+
+![image-20201119234243000](https://tva1.sinaimg.cn/large/0081Kckwgy1gkuwujr6lxj31ja0u0n5a.jpg)
+
 
 
 * 问题：[10KC问题](https://blog.csdn.net/chenrui310/article/details/101685827)
