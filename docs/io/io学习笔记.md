@@ -312,7 +312,180 @@ tcp的四元组：服务端.ip+服务端.port+客户端.ip+客户端.port
 
 ### 连接分配相关资源
 
+完成三次握手之后，客户端和服务端在各自的内核中维护了对上面所说的***四元组***的一个资源，比如Buffer,以fd(文件描述符的方式)提供能用户程序进行调用。
+
 ![image-20201119234243000](https://tva1.sinaimg.cn/large/0081Kckwgy1gkuwujr6lxj31ja0u0n5a.jpg)
+
+
+
+## 多路复用器
+
+### 老的socket编程方式：
+
+```java
+ServerSocket server = new ServerSocket(9090,20);
+while (true) {
+  Socket client = server.accept();  //阻塞1
+  new Thread(() -> {
+    in = client.getInputStream();
+    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+    while(true){
+    	String dataline = reader.readLine(); //阻塞2
+      ...
+    }
+    ....
+  }).start();
+}
+```
+
+
+
+因为老的socket编程时，下面的两个操作是会因为内核的系统调用进行阻塞
+
+* server.accept() 如果调用时没有客户端连接进来，这个方法调用就是会一直阻塞直到有客户端请求进来才会有返回
+* reader.readLine();  如果连接的客户端没有数据发送过来，这个方法也会进行阻塞。
+* 对于读取数据完成后的数据，还有业务逻辑处理，可能会很耗时
+
+基于上面两个原因，为了保证可以服务于多个客户端请求进来的情况，所以需要把reader.readLine的调用单独做一个线程，让主线程只做客户端连接的响应，新增加的线程来处理数据读取和业务逻辑等操作。
+
+
+
+![image-20201129222036395](/Users/lihongli24/Library/Application Support/typora-user-images/image-20201129222036395.png)
+
+#### 问题：
+
+1. 因为老的socket模式是基于对每个连接创建新的线程的方式，那么当请求量非常大的情况下，肯定会创建触非常多的线程出来，对于cpu来说，肯定需要花大部分时间在线程的切换上，这样效率会非常低。(cpu内部大致分为 寄存器、指令计数器pc和逻辑计算单元ALU,在多个线程切换时，寄存器和pc中的数据需要频繁的更换，cpu的计算时间会受到影响）
+2. 一个线程默认是占用1M的空间，这个也是问题
+
+### 非阻塞式IO
+
+因为上面的原来的io模式，受限于阻塞和多线程的问题，那么怎么解决这两个问题呢？
+内核做了优化，实现了NIO，nonblocking IO
+
+于是调用的时候是这样的
+
+```java
+LinkedList<SocketChannel> clients = new LinkedList<>();
+ServerSocketChannel ss = ServerSocketChannel.open();  //服务端开启监听：接受客户端
+ss.bind(new InetSocketAddress(9090));
+ss.configureBlocking(false); //重点  OS  NONBLOCKING!!!  //只让接受客户端  不阻塞
+while (true) {
+  SocketChannel client = ss.accept(); //不会阻塞？  -1 NULL
+  if (client == null) {
+    System.out.println("null.....");
+  } else {
+    client.configureBlocking(false); //重点  socket（服务端的listen socket<连接请求三次握手后，往我这里扔，我去通过accept 得到  连接的socket>，连接socket<连接后的数据读写使用的> ）
+    int port = client.socket().getPort();
+    System.out.println("client..port: " + port);
+    clients.add(client);
+  }
+  
+  //遍历已经链接进来的客户端能不能读写数据
+  for (SocketChannel c : clients) {   //串行化！！！！  多线程！！
+    int num = c.read(buffer);  // >0  -1  0   //不会阻塞
+    if (num > 0) {
+      buffer.flip();
+      byte[] aaa = new byte[buffer.limit()];
+      buffer.get(aaa);
+
+      String b = new String(aaa);
+      System.out.println(c.socket().getPort() + " : " + b);
+      buffer.clear();
+    }
+
+
+  }
+```
+
+
+
+上面的代码中，ServerSocketChannel和SocketChannel都可以设置.configureBlocking(false);
+
+那么之后的accept和read等操作都是不会阻塞。
+
+这样的话，就不用单独启动新的线程去处理读取操作了。
+
+![image-20201129223111323](https://tva1.sinaimg.cn/large/0081Kckwgy1gl6ez7dlzzj31o20hmtd2.jpg)
+
+
+
+#### 问题：
+
+1. 虽然用了非阻塞解决了***系统调用的阻塞***和***启动太多线程后的线程切换的消耗***问题，但是当连接数非常多，也就是我们的clients容器里面存放了好多客户端之后，在遍历这个clients的时候，如果10万个client里面只有一个或者2个真正有数据，那么9万多次的系统调用***recv***也都是白调用的。
+2. 如果clients的遍历过程中，数据的处理很耗时间，那么可能会导致很多数据来不及处理。
+3. 一次accept好像只能接收一个客户端，客户端接入速度会比较慢（如果下面的for循环耗时的话，那么就会更加的慢了）
+
+### 多路复用器
+
+根据上面的问题，遍历clients和一次只能accept接收一个客户端，就出现了多路复用器。
+
+解决的问题是，多个client，我们想一次系统调用就知道哪些有数据可以读取，哪些新连接需要接入。
+
+所以代码可以写成下面这样
+
+```java
+server = ServerSocketChannel.open();
+server.configureBlocking(false);
+server.bind(new InetSocketAddress(port));
+//如果在epoll模型下，open--》  epoll_create -> fd3
+selector = Selector.open();  //  select  poll  *epoll  优先选择：epoll  但是可以 -D修正
+//server 约等于 listen状态的 fd4
+/*
+register
+ 如果：
+ select，poll：jvm里开辟一个数组 fd4 放进去
+ epoll：  epoll_ctl(fd3,ADD,fd4,EPOLLIN
+*/
+server.register(selector, SelectionKey.OP_ACCEPT);
+
+while (true) {  //死循环
+
+  Set<SelectionKey> keys = selector.keys();
+  System.out.println(keys.size()+"   size");
+
+
+  //1,调用多路复用器(select,poll  or  epoll  (epoll_wait))
+  /*
+                select()是啥意思：
+                1，select，poll  其实  内核的select（fd4）  poll(fd4)
+                2，epoll：  其实 内核的 epoll_wait()
+                *, 参数可以带时间：没有时间，0  ：  阻塞，有时间设置一个超时
+                selector.wakeup()  结果返回0
+
+                懒加载：
+                其实再触碰到selector.select()调用的时候触发了epoll_ctl的调用
+
+                 */
+  while (selector.select() > 0) {
+    Set<SelectionKey> selectionKeys = selector.selectedKeys();  //返回的有状态的fd集合
+    Iterator<SelectionKey> iter = selectionKeys.iterator();
+    //so，管你啥多路复用器，你呀只能给我状态，我还得一个一个的去处理他们的R/W。同步好辛苦！！！！！！！！
+    //  NIO  自己对着每一个fd调用系统调用，浪费资源，那么你看，这里是不是调用了一次select方法，知道具体的那些可以R/W了？
+    //我前边可以强调过，socket：  listen   通信 R/W
+    while (iter.hasNext()) {
+      SelectionKey key = iter.next();
+      iter.remove(); //set  不移除会重复循环处理
+      if (key.isAcceptable()) {
+        //看代码的时候，这里是重点，如果要去接受一个新的连接
+        //语义上，accept接受连接且返回新连接的FD对吧？
+        //那新的FD怎么办？
+        //select，poll，因为他们内核没有空间，那么在jvm中保存和前边的fd4那个listen的一起
+        //epoll： 我们希望通过epoll_ctl把新的客户端fd注册到内核空间
+        acceptHandler(key);
+      } else if (key.isReadable()) {
+        readHandler(key);  //连read 还有 write都处理了
+        //在当前线程，这个方法可能会阻塞  ，如果阻塞了十年，其他的IO早就没电了。。。
+        //所以，为什么提出了 IO THREADS
+        //redis  是不是用了epoll，redis是不是有个io threads的概念 ，redis是不是单线程的
+        //tomcat 8,9  异步的处理方式  IO  和   处理上  解耦
+      }
+    }
+  }
+```
+
+
+
+
 
 
 
