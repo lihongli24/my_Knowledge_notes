@@ -200,9 +200,9 @@ public class SortTest {
         int[] a = new int[]{4, 1, 3, 5, 2, 6, 1};
 //        a = blueSort(a);
 //        a = selectionSort(a);
-//        a = insertionSort(a);
+        a = insertionSort(a);
 //        a = mergeSort(a);
-        heapSort(a);
+//        heapSort(a);
         System.out.println(Arrays.toString(a));
     }
 }

@@ -829,7 +829,7 @@ public final boolean releaseShared(int arg) {
      //释放当前线程的锁，因为可能是可重入锁，所以需要记录下被释放的state值
      int savedState = fullyRelease(node);
      int interruptMode = 0;
-     //一直循环或者挂起，知道本线程的node被从condition队列放入同步队列中
+     //一直循环或者挂起，直到本线程的node被从condition队列放入同步队列中
      //这个从condition队列放入同步队列的操作是在别的线程执行sign的时候会操作，
      while (!isOnSyncQueue(node)) {
        //如果不在同步队列中，挂起线程
