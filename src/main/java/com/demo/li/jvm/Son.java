@@ -7,11 +7,12 @@ package com.demo.li.jvm;
 
 class Father {
     private int i = test();
-    private static int j = method();
-
     static {
         System.out.print("(1)");
     }
+    private static int j = method();
+
+
 
     Father() {
         System.out.print("(2)");

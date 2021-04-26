@@ -167,7 +167,10 @@ nio其实由两种
 
 在上面的图中，描述了一个jvm进程和内核占用的内存情况。
 
-* 图中的heap有两个，一个是整个jvm进程的heap,还有一个是jvm进程内，我们熟悉的 jvm堆
+* 图中的heap有两个，
+
+  * 一个是整个jvm进程的heap,
+  * 还有一个是jvm进程内，我们熟悉的 jvm堆
 
   
 
@@ -226,7 +229,7 @@ int read = rafchannel.read(buffer);
 ```java
 RandomAccessFile raf = new RandomAccessFile(path, "rw");
 FileChannel rafchannel = raf.getChannel();
-ByteBuffer buffer = ByteBuffer.allocate(8192);
+ByteBuffer buffer = ByteBuffer.allocateDirect(8192);
 int read = rafchannel.read(buffer);
 ```
 
