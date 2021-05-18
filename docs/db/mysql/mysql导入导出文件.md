@@ -1,8 +1,10 @@
 # mysql导入导出数据
 
 ## 导出
-```java
-mysqldump -h47.106.245.218 -P3306 -uskyeeTester -p --databases skyeedb > ~/Documents/skyee/尽职报告/skyee支付中台脱敏.sql
+```shell
+mysqldump -h47.106.245.218 -P3306 -uskyeeTester -p --databases skyeedb > ~/dump.sql
 ```
 ## 导入
-source
+* 先连接数据库
+mysql -uroot -p --default-character-set=utf8
+source dump.sql
