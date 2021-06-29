@@ -1,0 +1,83 @@
+@startuml
+participant  AbstractAutowireCapableBeanFactory as beanFactory
+participant AutowiredAnnotationBeanPostProcessor as autowireBeanPostProcessor
+participant InjectionMetadata as InjectionMetadata
+participant AutowiredFieldElement as AutowiredFieldElement
+beanFactory -> beanFactory : doCreateBean
+beanFactory -> beanFactory : createBeanInstance
+
+== 让spring感知到 @Autowire == 
+
+beanFactory -> beanFactory : applyMergedBeanDefinitionPostProcessors
+note over autowireBeanPostProcessor 
+  AutowiredAnnotationBeanPostProcessor implements MergedBeanDefinitionPostProcessor
+end note
+beanFactory -> autowireBeanPostProcessor : postProcessMergedBeanDefinition
+
+
+autowireBeanPostProcessor -> autowireBeanPostProcessor : findAutowiringMetadata
+autowireBeanPostProcessor -> autowireBeanPostProcessor : buildAutowiringMetadata
+note over autowireBeanPostProcessor
+  对带有 @Autowired和@Value的字段或者方法
+  生成 AutowiredFieldElement和 AutowiredMethodElement 放入缓存中
+  在后面的时候会用到这些elements
+end note
+
+== 其他逻辑 == 
+
+beanFactory -> beanFactory : addSingletonFactory
+note left
+  bean的三级缓存逻辑
+endnote
+
+== 使用@Autowire注释的字段或方法 == 
+
+beanFactory -> beanFactory : populateBean
+note over beanFactory
+  根据当前bean的resolvedAutowireMode决定
+endnote
+beanFactory -> beanFactory : autowireByName/autowireByType
+
+note over autowireBeanPostProcessor
+  autowireBeanPostProcessor implements InstantiationAwareBeanPostProcessor
+endnote
+beanFactory -> autowireBeanPostProcessor : postProcessProperties
+
+note over autowireBeanPostProcessor
+  从缓存中获取之前执行postProcessMergedBeanDefinition的时候，
+  放入缓存中的InjectionMetadata
+endnote
+autowireBeanPostProcessor -> autowireBeanPostProcessor : findAutowiringMetadata
+autowireBeanPostProcessor -> InjectionMetadata : inject
+note over InjectionMetadata
+  遍历AutowiredFieldElement和 AutowiredMethodElement 
+  执行他们的 inject方法
+endnote
+
+InjectionMetadata -> AutowiredFieldElement : inject
+AutowiredFieldElement -> beanFactory : resolveDependency
+note over AutowiredFieldElement
+  获取该element指向的最终的bean对象
+endnote
+
+note over AutowiredFieldElement
+  利用放射的方式将bean，通过属性的setter方法或者method的自身方法设置到当前的bean中
+endnote
+AutowiredFieldElement -> AutowiredFieldElement : 设置属性值
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@enduml
