@@ -1,0 +1,33 @@
+@startmindmap
++ queue
+++ 增加
++++ add
+++++ 不能插入时，抛异常
++++ offer
+++++ 不能插入时，返回false
+++ remove
+++ 获取
++++ poll 
+++++ 获取并移除队列头部的节点
++++ peek
+++++ 只获取队列头部节点，不移除
+
+++ deque
++++ addFirst
++++ addLast
++++ ..First
++++ ..Last
+
+++ BlockingQueue
++++ 增加
+++++ put
++++++ 往队列中添加，必要的时候等待空间可用
+++++ offer(E e, long timeout, TimeUnit unit)
++++++ 往队列中增加，有必要的时候，等待一定时间
++++ 获取
+++++ take
++++++ 检索并删除头部记录，必要时等到可用元素
+++++ poll(long timeout, TimeUnit unit)
++++++ 检索并删除头部记录，必要时等待可用元素一段时间
+
+@endmindmap
