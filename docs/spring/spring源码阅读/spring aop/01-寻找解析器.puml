@@ -1,0 +1,47 @@
+@startuml
+participant AbstractApplicationContext as applicationContext
+participant AbstractRefreshableApplicationContext as refreshApplicationContext
+participant AbstractXmlApplicationContext as xmlApplication
+participant XmlBeanDefinitionReader as xmlBeanDefinitionReader
+participant DefaultBeanDefinitionDocumentReader as documentReader
+participant BeanDefinitionParserDelegate as parseDelegate
+participant NamespaceHandler as namespaceHandler
+participant ConfigBeanDefinitionParser as ConfigBeanDefinitionParser
+
+
+applicationContext -> applicationContext : refresh
+applicationContext -> applicationContext : obtainFreshBeanFactory
+applicationContext -> refreshApplicationContext : refreshBeanFactory
+note over refreshApplicationContext
+  如果是xml配置的情况下，解析配置文件,加载bean
+endnote
+refreshApplicationContext -> refreshApplicationContext : loadBeanDefinitions
+refreshApplicationContext -> xmlApplication : loadBeanDefinitions
+xmlApplication -> xmlBeanDefinitionReader : loadBeanDefinitions
+note over documentReader 
+    根据是否是自定义的xml标签来决定解析方式
+    <aop> 的标签使用的是delegate.parseCustomElement
+endnote
+xmlBeanDefinitionReader -> documentReader : parseDefaultElement/delegate.parseCustomElement
+documentReader -> parseDelegate : parseCustomElement
+note over namespaceHandler
+  获取到的namespaceHandler是AopNamespaceHandler
+endnote
+parseDelegate -> namespaceHandler : parse
+
+namespaceHandler -> namespaceHandler : findParserForElement
+note over namespaceHandler
+  返回ConfigBeanDefinitionParser
+endnote
+namespaceHandler -> ConfigBeanDefinitionParser : parse
+
+
+
+
+
+
+
+
+
+
+@enduml

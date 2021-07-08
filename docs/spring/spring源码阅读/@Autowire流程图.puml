@@ -64,20 +64,4 @@ note over AutowiredFieldElement
   利用放射的方式将bean，通过属性的setter方法或者method的自身方法设置到当前的bean中
 endnote
 AutowiredFieldElement -> AutowiredFieldElement : 设置属性值
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @enduml
